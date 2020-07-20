@@ -1,0 +1,32 @@
+aiosmtplib==1.0.6
+aniso8601==8.0.0
+attrs==19.3.0
+brotlipy==0.7.0
+certifi==2020.6.20
+cffi==1.14.0
+chardet==3.0.4
+click==7.1.2
+cryptography==2.9.2
+Flask==1.1.2
+Flask-Cors==3.0.8
+Flask-JWT==0.3.2
+Flask-JWT-Extended @ file:///home/conda/feedstock_root/build_artifacts/flask-jwt-extended_1588273568824/work
+flask-restx @ file:///home/conda/feedstock_root/build_artifacts/flask-restx_1593008484882/work
+idna @ file:///tmp/build/80754af9/idna_1593446292537/work
+importlib-metadata @ file:///home/conda/feedstock_root/build_artifacts/importlib-metadata_1593211370946/work
+itsdangerous==1.1.0
+Jinja2==2.11.2
+jsonschema==3.2.0
+MarkupSafe==1.1.1
+pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
+PyJWT==1.4.2
+pyOpenSSL @ file:///tmp/build/80754af9/pyopenssl_1594392929924/work
+pyrsistent==0.16.0
+PySocks==1.7.1
+python-dateutil==2.8.1
+pytz==2020.1
+requests @ file:///tmp/build/80754af9/requests_1592841827918/work
+six==1.15.0
+urllib3==1.25.9
+Werkzeug==1.0.1
+zipp==3.1.0
