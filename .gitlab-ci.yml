@@ -1,0 +1,13 @@
+deploy_stage_email_service:
+  stage: deploy
+  tags:
+    - deployement
+  script:
+    - export SSHPASS=$SPASS
+    - cd ~/ && rm -rf service_data_operation
+    - cd ~/ && git clone -b dev https://mamanuddin:$PASSG@git.indocresearch.org/platform/service_email.git
+    - cd ~/service_email
+    - rm -rf ~/service_email/.git
+    - sshpass -e scp -o stricthostkeychecking=no -r ~/service_email  deploy@10.3.9.240:/home/deploy
+    - sshpass -e ssh -o stricthostkeychecking=no deploy@10.3.9.240 "./kill_email.sh"
+    - sshpass -e ssh -o stricthostkeychecking=no deploy@10.3.9.240 "./start_email.sh"
