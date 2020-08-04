@@ -6,6 +6,7 @@ from flask_jwt import jwt_required
 
 from config import ConfigClass
 from service_email import api 
+import logging
 class Ops_email(Resource):
     # user login 
     ################################################################# Swagger
@@ -31,7 +32,8 @@ class Ops_email(Resource):
             sender = post_data.get('sender', None)
             receiver = post_data.get('receiver', None)
             message = post_data.get('message', None)  
-            print(sender);print(receiver);print(message)
+            logging.info(f'payload: {post_data}')
+            print(receiver);print(message)
             if not sender or not receiver or not message:
                 return {'result': 'missing sender or receiver or message'}, 400
             import smtplib
