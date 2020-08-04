@@ -4,7 +4,7 @@ deploy_stage_email_service:
     - deployement
   script:
     - export SSHPASS=$SPASS
-    - cd ~/ && rm -rf service_data_operation
+    - cd ~/ && rm -rf service_email
     - cd ~/ && git clone -b dev https://mamanuddin:$PASSG@git.indocresearch.org/platform/service_email.git
     - cd ~/service_email
     - rm -rf ~/service_email/.git
