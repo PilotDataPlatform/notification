@@ -8,6 +8,8 @@ from config import ConfigClass
 from service_email import api 
 import logging
 class Ops_email(Resource):
+    def __init__(self, **kwargs):
+        self.logger = kwargs.get('logger')
     # user login 
     ################################################################# Swagger
     query_payload = api.model(
@@ -32,7 +34,7 @@ class Ops_email(Resource):
             sender = post_data.get('sender', None)
             receiver = post_data.get('receiver', None)
             message = post_data.get('message', None)  
-            logging.info(f'payload: {post_data}')
+            self.loger.info(f'payload: {post_data}')
             print(receiver);print(message)
             if not sender or not receiver or not message:
                 return {'result': 'missing sender or receiver or message'}, 400
