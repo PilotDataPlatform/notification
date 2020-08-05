@@ -1,15 +1,13 @@
-from flask import request, after_this_request
+from flask import request, after_this_request, current_app
 # from flask_restful import Resource
 from flask_restx import Api, Resource, fields
 import requests
 from flask_jwt import jwt_required
-
+import smtplib
 from config import ConfigClass
 from service_email import api 
 import logging
 class Ops_email(Resource):
-    def __init__(self, **kwargs):
-        self.logger = kwargs.get('logger')
     # user login 
     ################################################################# Swagger
     query_payload = api.model(
@@ -34,21 +32,21 @@ class Ops_email(Resource):
             sender = post_data.get('sender', None)
             receiver = post_data.get('receiver', None)
             message = post_data.get('message', None)  
-            self.loger.info(f'payload: {post_data}')
-            print(receiver);print(message)
+            current_app.logger.info(f'payload: {post_data}')
+            current_app.logger.info(f'receiver: {receiver}')
+            current_app.logger.info(f'message: {message}')
             if not sender or not receiver or not message:
+                current_app.logger.exception('missing sender or receiver or message')
                 return {'result': 'missing sender or receiver or message'}, 400
-            import smtplib
             client = smtplib.SMTP('localhost')
             fromaddr = sender
             toaddrs = receiver
             msg = message
             client.sendmail(fromaddr, [toaddrs], msg)
             client.quit()
-
-
         except Exception as e:
+            current_app.logger.exception(f'Error when sending email to {receiver}, {e}')
             return {'result': str(e)}, 500
-
+        current_app.logger.info(f'Email sent successfully to {receiver}')
         return {'result': "Email sent successfully. "}, 200
 
