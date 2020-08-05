@@ -27,8 +27,8 @@ def create_app(extra_config_settings={}):
         os.makedirs('./logs')
     rootLogger = logging.getLogger(__name__)
     file_handler = logging.FileHandler('./logs/service_email.log')
-    rootLogger.setFormatter(formatter)
-    rootLogger.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
     rootLogger.addHandler(file_handler)
+    rootLogger.setLevel(logging.DEBUG)    
     return app
     
