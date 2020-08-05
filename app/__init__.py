@@ -25,9 +25,10 @@ def create_app(extra_config_settings={}):
                               %(levelname)s - %(message)s')
     if not os.path.exists('./logs'):
         os.makedirs('./logs')
+    rootLogger = logging.getLogger(__name__)
     file_handler = logging.FileHandler('./logs/service_email.log')
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.DEBUG)
-    app.logger.addHandler(file_handler)
+    rootLogger.setFormatter(formatter)
+    rootLogger.setLevel(logging.DEBUG)
+    rootLogger.addHandler(file_handler)
     return app
     
