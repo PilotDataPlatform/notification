@@ -1,13 +1,27 @@
-deploy_stage_email_service:
-  stage: deploy
+image: docker:latest
+
+stages:
+  - build
+  - deploy
+
+variables:
+  REGISTRY: 10.3.7.241:5000
+  CONTAINER_IMAGE: ${REGISTRY}/notification:${CI_COMMIT_SHORT_SHA}
+
+build:
+  stage: build
   tags:
     - deployement
   script:
-    - export SSHPASS=$SPASS
-    - cd ~/ && rm -rf service_email
-    - cd ~/ && git clone -b dev https://mamanuddin:$PASSG@git.indocresearch.org/platform/service_email.git
-    - cd ~/service_email
-    - rm -rf ~/service_email/.git
-    - sshpass -e scp -o stricthostkeychecking=no -r ~/service_email  deploy@10.3.9.240:/home/deploy
-    - sshpass -e ssh -o stricthostkeychecking=no deploy@10.3.9.240 "./kill_email.sh"
-    - sshpass -e ssh -o stricthostkeychecking=no deploy@10.3.9.240 "./start_email.sh"
+    - docker login ${REGISTRY} -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - docker build -t ${CONTAINER_IMAGE} .
+    - docker push ${CONTAINER_IMAGE}
+
+deploy:
+  stage: deploy
+  tags:
+    - deployement
+  image: dtzar/helm-kubectl
+  script:
+    - sed -i "s/<VERSION>/${CI_COMMIT_SHORT_SHA}/g" kubernetes/deployment.yaml
+    - kubectl apply -f kubernetes/deployment.yaml
