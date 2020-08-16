@@ -41,7 +41,7 @@ class Ops_email(Resource):
             return {'result': 'missing sender or receiver or message'}, 400
         try:    
             client = smtplib.SMTP('10.3.9.240')
-            client.connect("10.3.9.240")
+            client.connect('10.3.9.240', 465)
             client.ehlo()
             client.starttls()
             client.ehlo()
