@@ -24,4 +24,5 @@ deploy:
   image: dtzar/helm-kubectl
   script:
     - sed -i "s/<VERSION>/${CI_COMMIT_SHORT_SHA}/g" kubernetes/deployment.yaml
+    - kubectl config use-context staging
     - kubectl apply -f kubernetes/deployment.yaml
