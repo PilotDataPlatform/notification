@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: notification
-          image: 10.3.7.241:5000/notification:<VERSION>
+          image: 10.3.7.221:5000/notification:<VERSION>
           ports:
             - containerPort: 5065
       nodeSelector:
