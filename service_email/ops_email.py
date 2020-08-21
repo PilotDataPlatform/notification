@@ -41,6 +41,7 @@ class Ops_email(Resource):
             return {'result': 'missing sender or receiver or message'}, 400
         try:
             client = smtplib.SMTP(ConfigClass.postfix, 25)
+            client.ehlo()
             client.starttls()
             # client.connect()
             client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
