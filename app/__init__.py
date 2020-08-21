@@ -29,7 +29,7 @@ def create_app(extra_config_settings={}):
     file_handler = logging.FileHandler('./logs/service_email.log')
     file_handler.setFormatter(formatter)
     app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.DEBUG)
+    app.logger.setLevel(logging.INFO)
     app.logger.info('start')   
     return app
     
