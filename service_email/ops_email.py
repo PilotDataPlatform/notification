@@ -40,11 +40,11 @@ class Ops_email(Resource):
             current_app.logger.exception('missing sender or receiver or message')
             return {'result': 'missing sender or receiver or message'}, 400
         try:
-            client = smtplib.SMTP('10.3.9.240', 25)
-            # client.ehlo()
-            # client.starttls()
-            # # client.connect()
-            # client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
+            client = smtplib.SMTP('mailout.easydns.com',587)
+            client.ehlo()
+            client.starttls()
+            # client.connect()
+            client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
             current_app.logger.info('email server connection established')
         except smtplib.socket.gaierror as e:
             current_app.logger.exception(f'Error connecting with Mail host, {e}')
