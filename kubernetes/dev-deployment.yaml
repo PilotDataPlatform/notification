@@ -25,6 +25,9 @@ spec:
           image: 10.3.7.221:5000/notification:<VERSION>
           ports:
             - containerPort: 5065
+          env:
+          - name: env
+            value: "dev"
       nodeSelector:
         namespace: utility
 ---
