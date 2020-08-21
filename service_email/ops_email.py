@@ -41,7 +41,8 @@ class Ops_email(Resource):
             return {'result': 'missing sender or receiver or message'}, 400
         try:
             client = smtplib.SMTP(ConfigClass.postfix, 25)
-            client.connect('mailout.easydns.com', 587)
+            client.starttls()
+            # client.connect()
             client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
             current_app.logger.info('email server connection established')
         except smtplib.socket.gaierror as e:
