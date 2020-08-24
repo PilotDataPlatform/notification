@@ -32,7 +32,9 @@ class Ops_email(Resource):
         post_data = request.get_json()
         sender = post_data.get('sender', None)
         receiver = post_data.get('receiver', None)
-        message = post_data.get('message', None)  
+        text = post_data.get('message', None)
+        subject = post_data.get('subject', None)  
+        message = 'Subject: {}\n\n{}'.format(subject, text)
         current_app.logger.info(f'payload: {post_data}')
         current_app.logger.info(f'receiver: {receiver}')
         current_app.logger.info(f'message: {message}')
@@ -46,11 +48,9 @@ class Ops_email(Resource):
         except smtplib.socket.gaierror as e:
             current_app.logger.exception(f'Error connecting with Mail host, {e}')
             return {'result': str(e)}, 500
-        fromaddr = sender
-        toaddrs = receiver
-        msg = message
+
         try:    
-            client.sendmail(fromaddr, [toaddrs], msg)
+            client.sendmail(sender, [receiver], message)
         except Exception as e:
             current_app.logger.exception(f'Error when sending email to {receiver}, {e}')
             return {'result': str(e)}, 500
