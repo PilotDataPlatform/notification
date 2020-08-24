@@ -39,8 +39,10 @@ class Ops_email(Resource):
         if not sender or not receiver or not message:
             current_app.logger.exception('missing sender or receiver or message')
             return {'result': 'missing sender or receiver or message'}, 400
-        try:    
-            client = smtplib.SMTP('10.3.9.240')
+        try:
+            client = smtplib.SMTP(ConfigClass.postfix,ConfigClass.smtp_port)
+            client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
+            current_app.logger.info('email server connection established')
         except smtplib.socket.gaierror as e:
             current_app.logger.exception(f'Error connecting with Mail host, {e}')
             return {'result': str(e)}, 500

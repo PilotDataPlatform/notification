@@ -6,7 +6,7 @@ metadata:
   labels:
     app: notification
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: notification
@@ -22,9 +22,12 @@ spec:
     spec:
       containers:
         - name: notification
-          image: 10.3.7.241:5000/notification:<VERSION>
+          image: 10.3.7.221:5000/notification:<VERSION>
           ports:
             - containerPort: 5065
+          env:
+          - name: env
+            value: "dev"
       nodeSelector:
         namespace: utility
 ---
