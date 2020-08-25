@@ -11,5 +11,5 @@ module_api = Api(
 api = module_api.namespace('Email Service', description='Operation on email', path ='/')
 
 # user operations
-from service_email.ops_email import Ops_email
-api.add_resource(Ops_email, '/v1/email')
+from service_email.ops_email import WriteEmails
+api.add_resource(WriteEmails, '/v1/email')

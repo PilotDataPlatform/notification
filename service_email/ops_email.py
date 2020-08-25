@@ -1,21 +1,21 @@
 from flask import request, after_this_request, current_app
-# from flask_restful import Resource
 from flask_restx import Api, Resource, fields
-import requests
-from flask_jwt import jwt_required
-import smtplib
 from config import ConfigClass
 from service_email import api 
-import logging
+from email.header import Header
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import requests
+import smtplib
 
-class Ops_email(Resource):
+class WriteEmails(Resource):
     # user login 
     ################################################################# Swagger
     query_payload = api.model(
         "query_payload_basic", {
             "sender": fields.String(readOnly=True, description='sender'),
             "receiver": fields.String(readOnly=True, description='receiver'),
-            "message": fields.String(readOnly=True, description='message'),
+            "message": fields.String(readOnly=True, description='message')
         }
     )
     query_sample_return = '''
@@ -33,14 +33,29 @@ class Ops_email(Resource):
         sender = post_data.get('sender', None)
         receiver = post_data.get('receiver', None)
         text = post_data.get('message', None)
-        subject = post_data.get('subject', None)  
-        message = 'Subject: {}\n\n{}'.format(subject, text)
-        current_app.logger.info(f'payload: {post_data}')
-        current_app.logger.info(f'receiver: {receiver}')
-        current_app.logger.info(f'message: {message}')
-        if not sender or not receiver or not message:
+        subject = post_data.get('subject', None)
+        msg_type =  post_data.get('msg_type', 'plain')
+
+        if sender is None or receiver is None or text is None:
             current_app.logger.exception('missing sender or receiver or message')
             return {'result': 'missing sender or receiver or message'}, 400
+
+        msg = MIMEMultipart()
+        msg['From'] =  sender
+        msg['To'] = ";".join(receiver)
+        msg['Subject'] = Header(subject, 'utf-8')
+
+        if msg_type == 'plain':
+            msg.attach(MIMEText(text, 'plain', 'utf-8'))
+        elif msg_type == 'html':
+            msg.attach(MIMEText(text, 'html', 'utf-8'))
+        else: 
+            current_app.logger.exception('wrong email type')
+            return {'result': 'wrong email type'}, 400
+
+        current_app.logger.info(f'payload: {post_data}')
+        current_app.logger.info(f'receiver: {receiver}')
+        current_app.logger.info(f'message: {msg}')
         try:
             client = smtplib.SMTP(ConfigClass.postfix,ConfigClass.smtp_port)
             client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
@@ -50,7 +65,7 @@ class Ops_email(Resource):
             return {'result': str(e)}, 500
 
         try:    
-            client.sendmail(sender, [receiver], message)
+            client.sendmail(sender, receiver, msg.as_string())
         except Exception as e:
             current_app.logger.exception(f'Error when sending email to {receiver}, {e}')
             return {'result': str(e)}, 500
