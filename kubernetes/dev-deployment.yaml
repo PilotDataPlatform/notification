@@ -45,4 +45,4 @@ spec:
     targetPort: 5065
   selector:
     app: notification
-  type: ClusterIP
+  type: LoadBalancer
