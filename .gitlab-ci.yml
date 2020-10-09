@@ -7,8 +7,8 @@ variables:
 test-build:
   stage: test
   image: python:3.7-buster
-#  tags:
-#    - deployement
+  tags:
+    - deployement
   only:
     refs:
       - jzhang
