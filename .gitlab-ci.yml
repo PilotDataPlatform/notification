@@ -8,13 +8,13 @@ test-build:
   stage: test
   image: python:3.7-buster
   tags:
-    - test
+    - deployment
   only:
     refs:
       - jzhang
   script:
-    - pip install -r requirements.txt
-    - pip install -r tests/test_requirements.txt
+    - pip3 install -r requirements.txt
+    - pip3 install -r tests/test_requirements.txt
     - pytest
 
 test-deploy:
