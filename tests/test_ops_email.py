@@ -24,7 +24,7 @@ class TestWriteEmails(unittest.TestCase):
                    "receiver": "jzhang@indocresearch.org",
                    "message": "test email"}
         response = self.app.post("/v1/email", json=payload)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         self.assertTrue(path.exists('./logs'))
 
     def test_post_no_sender(self):
