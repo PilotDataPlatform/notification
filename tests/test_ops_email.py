@@ -191,7 +191,6 @@ class TestWriteEmails(unittest.TestCase):
 
     def test_logs(self):
         self.log.info('\n')
-        self.log.warning("the logs folder will be remmoved for this testing")
         self.log.info('test check if logs directory created'.center(80, '-'))
         self.log.info(f"EXISTS OF LOGS FOLDER: {path.exists('./logs')}")
         self.assertTrue(path.exists('./logs'))
