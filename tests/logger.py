@@ -20,7 +20,6 @@ class Logger(object):
                                       '%Y-%m-%d %H:%M:%S')
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
-        self.logger.debug("New session started")
 
     def info(self, msg):
         self.logger.info(msg)

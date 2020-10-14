@@ -34,6 +34,7 @@ class TestWriteEmails(unittest.TestCase):
         self.log.info(f"POST API: {self.post_api}")
         self.log.info(f"POST PAYLOAD: {payload}")
         response = self.app.post(self.post_api, json=payload)
+        self.log.info(f"POST RESPONSE: {response}")
         try:
             self.log.info(f"COMPARING: {response.status_code} VS {200}")
             self.assertEqual(response.status_code, 200)
@@ -207,7 +208,7 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f"POST RESPONSE: {response}")
         try:
-            self.log.error("MOCK ERROR: smtplib.socket.gaierror")
+            self.log.info("MOCK ERROR: smtplib.socket.gaierror")
             self.log.info(f"COMPARING: {response.status_code} VS {500}")
             self.assertEqual(response.status_code, 500)
             self.log.info(f"CHECKING IS NOT NONE: {response.data}")
@@ -228,7 +229,7 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f"POST RESPONSE: {response}")
         try:
-            self.log.error("MOCK ERROR: requests.HTTPError")
+            self.log.info("MOCK ERROR: requests.HTTPError")
             self.log.info(f"COMPARING: {response.status_code} VS {500}")
             self.assertEqual(response.status_code, 500)
             self.log.info(f"CHECKING IS NOT NONE: {response.data}")
