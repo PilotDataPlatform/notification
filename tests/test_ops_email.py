@@ -25,7 +25,8 @@ class TestWriteEmails(unittest.TestCase):
     def tearDown(self):
         os.system('rm -rf logs')
 
-    def test_post_correct(self):
+    @patch('smtplib.SMTP')
+    def test_post_correct(self, mock_smtp):
         payload = {"sender": "notification@vre",
                    "receiver": "jzhang@indocresearch.org",
                    "message": "test email"}
@@ -42,7 +43,8 @@ class TestWriteEmails(unittest.TestCase):
             self.log.error(e)
             raise e
 
-    def test_post_no_sender(self):
+    @patch('smtplib.SMTP')
+    def test_post_no_sender(self, mock_smtp):
         payload = {
             "sender": None,
             "receiver": "jzhang@indocresearch.org",
@@ -65,7 +67,8 @@ class TestWriteEmails(unittest.TestCase):
             self.log.error(e)
             raise e
 
-    def test_post_no_receiver(self):
+    @patch('smtplib.SMTP')
+    def test_post_no_receiver(self, mock_smtp):
         payload = {
             "sender": "notification@vre",
             "receiver": None,
@@ -88,7 +91,8 @@ class TestWriteEmails(unittest.TestCase):
             self.log.error(e)
             raise e
 
-    def test_post_no_message(self):
+    @patch('smtplib.SMTP')
+    def test_post_no_message(self, mock_smtp):
         payload = {
             "sender": "notification@vre",
             "receiver": "jzhang@indocresearch.org",
@@ -111,7 +115,8 @@ class TestWriteEmails(unittest.TestCase):
             self.log.error(e)
             raise e
 
-    def test_html_email(self):
+    @patch('smtplib.SMTP')
+    def test_html_email(self, mock_smtp):
         html_msg = '''<!DOCTYPE html> \
                         <body>\
                         <h4>Dear VRE member,</h4>\
@@ -134,7 +139,8 @@ class TestWriteEmails(unittest.TestCase):
             self.log.error(e)
             raise e
 
-    def test_wrong_message(self):
+    @patch('smtplib.SMTP')
+    def test_wrong_message(self, mock_smtp):
         payload = {"sender": "notification@vre",
                    "receiver": "jzhang@indocresearch.org",
                    "message": "test message",
@@ -156,7 +162,8 @@ class TestWriteEmails(unittest.TestCase):
             self.log.error(e)
             raise e
 
-    def test_multiple_receiver_list(self):
+    @patch('smtplib.SMTP')
+    def test_multiple_receiver_list(self, mock_smtp):
         payload = {"sender": "notification@vre",
                    "receiver": ["jzhang@indocresearch.org", "jiayu@indocresearch.org"],
                    "message": "test email"}
@@ -173,7 +180,8 @@ class TestWriteEmails(unittest.TestCase):
             self.log.error(e)
             raise e
 
-    def test_list_receiver(self):
+    @patch('smtplib.SMTP')
+    def test_list_receiver(self, mock_smptp):
         payload = {"sender": "notification@vre",
                    "receiver": ["jzhang@indocresearch.org"],
                    "message": "test email"}
