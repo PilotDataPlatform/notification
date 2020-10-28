@@ -6,6 +6,18 @@ variables:
   CONTAINER_IMAGE_DEV: ${REGISTRY_DEV}/notification:${CI_COMMIT_SHORT_SHA}
   CONTAINER_IMAGE_STAGING: ${REGISTRY_STAGING}/notification:${CI_COMMIT_SHORT_SHA}
 
+dev-test:
+  stage: test
+  tags:
+    - test
+  only:
+    refs:
+      - k8s-dev
+  script:
+    - pip3 install -r requirements.txt
+    - pip3 install -r tests/test_requirements.txt
+    - pytest
+
 dev-build:
   stage: build
   tags:
