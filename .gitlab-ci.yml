@@ -1,59 +1,30 @@
-image: docker:latest
-
 variables:
   REGISTRY_DEV: 10.3.7.221:5000
   REGISTRY_STAGING: 10.3.7.241:5000
   CONTAINER_IMAGE_DEV: ${REGISTRY_DEV}/notification:${CI_COMMIT_SHORT_SHA}
   CONTAINER_IMAGE_STAGING: ${REGISTRY_STAGING}/notification:${CI_COMMIT_SHORT_SHA}
 
-dev-build:
-  stage: build
+test-build:
+  stage: test
+  image: python:3.7-buster
   tags:
-    - deployement
+    - test
   only:
     refs:
-      - k8s-dev
+      - jzhang
   script:
-    - docker login ${REGISTRY_DEV} -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
-    - docker build -t ${CONTAINER_IMAGE_DEV} .
-    - docker push ${CONTAINER_IMAGE_DEV}
+    - pip3 install -r requirements.txt
+    - pip3 install -r tests/test_requirements.txt
+    - pytest
 
-dev-deploy:
+test-deploy:
   stage: deploy
   tags:
     - deployement
   only:
     refs:
-      - k8s-dev
-  image: dtzar/helm-kubectl
+      - jzhang
   script:
-    - sed -i "s/<VERSION>/${CI_COMMIT_SHORT_SHA}/g" kubernetes/dev-deployment.yaml
-    - kubectl config use-context dev
-    - kubectl apply -f kubernetes/dev-deployment.yaml
+    - echo "deploying test~~"
 
-
-staging-build:
-  stage: build
-  tags:
-    - deployement
-  only:
-    refs:
-      - k8s-staging
-  script:
-    - docker login ${REGISTRY_STAGING} -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
-    - docker build -t ${CONTAINER_IMAGE_STAGING} .
-    - docker push ${CONTAINER_IMAGE_STAGING}
-
-staging-deploy:
-  stage: deploy
-  tags:
-    - deployement
-  only:
-    refs:
-      - k8s-staging
-  image: dtzar/helm-kubectl
-  script:
-    - sed -i "s/<VERSION>/${CI_COMMIT_SHORT_SHA}/g" kubernetes/staging-deployment.yaml
-    - kubectl config use-context staging
-    - kubectl apply -f kubernetes/staging-deployment.yaml
 
