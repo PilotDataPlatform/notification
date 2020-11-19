@@ -28,7 +28,7 @@ class TestWriteEmails(unittest.TestCase):
     @patch('smtplib.SMTP')
     def test_post_correct(self, mock_smtp):
         payload = {"sender": "notification@vre",
-                   "receiver": "jzhang@indocresearch.org",
+                   "receiver": ["jzhang@indocresearch.org"],
                    "message": "test email"}
         self.log.info('\n')
         self.log.info('test post with correct payload'.center(80, '-'))
@@ -123,7 +123,7 @@ class TestWriteEmails(unittest.TestCase):
                         </body>\
             </html>'''
         payload = {"sender": "notification@vre",
-                   "receiver": "jzhang@indocresearch.org",
+                   "receiver": ["jzhang@indocresearch.org"],
                    "message": html_msg,
                    "msg_type": "html"}
         self.log.info('\n')
@@ -142,7 +142,7 @@ class TestWriteEmails(unittest.TestCase):
     @patch('smtplib.SMTP')
     def test_wrong_message(self, mock_smtp):
         payload = {"sender": "notification@vre",
-                   "receiver": "jzhang@indocresearch.org",
+                   "receiver": ["jzhang@indocresearch.org"],
                    "message": "test message",
                    "msg_type": "csv"}
         self.log.info('\n')
