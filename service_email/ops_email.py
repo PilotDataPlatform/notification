@@ -35,11 +35,8 @@ def send_emails(receivers, sender, subject, text, msg_type):
 
         if msg_type == 'plain':
             msg.attach(MIMEText(text, 'plain', 'utf-8'))
-        elif msg_type == 'html':
-            msg.attach(MIMEText(text, 'html', 'utf-8'))
         else:
-            current_app.logger.exception('wrong email type')
-            return {'result': 'wrong email type'}, 400
+            msg.attach(MIMEText(text, 'html', 'utf-8'))
 
         try:
             current_app.logger.info(f'message: {msg}')
@@ -78,17 +75,39 @@ class WriteEmails(Resource):
         text = post_data.get('message', None)
         subject = post_data.get('subject', None)
         msg_type = post_data.get('msg_type', 'plain')
-
+        
         if sender is None or receiver is None or text is None:
             current_app.logger.exception(
                 'missing sender or receiver or message')
             return {'result': 'missing sender or receiver or message'}, 400
+
+        if msg_type not in ['html', 'plain']:
+            current_app.logger.exception('wrong email type')
+            return {'result': 'wrong email type'}, 400
 
         current_app.logger.info(f'payload: {post_data}')
         current_app.logger.info(f'receiver: {receiver}')
 
         if not isinstance(receiver, list):
             return {'result': 'receiver must be a list'}, 400
+
+        # Open the SMTP connection just to test that it's working before doing the real sending in the background
+        try:
+            env = os.environ.get('env')
+            if env is None or env == 'charite':
+                client = smtplib.SMTP(
+                    ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
+            else:
+                client = smtplib.SMTP(
+                    ConfigClass.postfix, ConfigClass.smtp_port)
+                client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
+
+            current_app.logger.info('email server connection established')
+        except smtplib.socket.gaierror as e:
+            current_app.logger.exception(
+                f'Error connecting with Mail host, {e}')
+            return {'result': str(e)}, 500
+        client.quit()
 
         p = Process(target=send_emails, args=(receiver, sender, subject, text, msg_type))
         p.daemon = True
