@@ -5,12 +5,16 @@ from service_email import api
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.application import MIMEApplication
 from multiprocessing import Process
 import requests
 import smtplib
 import os
+import base64
+from utils import allowed_file, is_image
 
-def send_emails(receivers, sender, subject, text, msg_type):
+def send_emails(receivers, sender, subject, text, msg_type, attachments):
     try:
         env = os.environ.get('env')
         if env is None or env == 'charite':
@@ -32,6 +36,8 @@ def send_emails(receivers, sender, subject, text, msg_type):
         msg['From'] = sender
         msg['To'] =  to 
         msg['Subject'] = Header(subject, 'utf-8')
+        for attachment in attachments:
+            msg.attach(attachment)
 
         if msg_type == 'plain':
             msg.attach(MIMEText(text, 'plain', 'utf-8'))
@@ -75,6 +81,18 @@ class WriteEmails(Resource):
         text = post_data.get('message', None)
         subject = post_data.get('subject', None)
         msg_type = post_data.get('msg_type', 'plain')
+        files = post_data.get('attachements', [])
+        attachments = []
+        for file in files:
+            data = base64.b64decode(file.get("data")) 
+            filename = file.get("name")
+            if data and allowed_file(filename):
+                if is_image(filename):
+                    attach = MIMEImage(data)
+                    attach.add_header('Content-Disposition', 'attachment', filename=filename)
+                else:
+                    attach = MIMEApplication(data, _subtype='pdf', filename=filename)
+                attachments.append(attach)
         
         if sender is None or receiver is None or text is None:
             current_app.logger.exception(
@@ -109,7 +127,7 @@ class WriteEmails(Resource):
             return {'result': str(e)}, 500
         client.quit()
 
-        p = Process(target=send_emails, args=(receiver, sender, subject, text, msg_type))
+        p = Process(target=send_emails, args=(receiver, sender, subject, text, msg_type, attachments))
         p.daemon = True
         p.start()
         current_app.logger.info(f'Email sent successfully to {receiver}')
