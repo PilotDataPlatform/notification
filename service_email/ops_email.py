@@ -81,7 +81,7 @@ class WriteEmails(Resource):
         text = post_data.get('message', None)
         subject = post_data.get('subject', None)
         msg_type = post_data.get('msg_type', 'plain')
-        files = post_data.get('attachements', [])
+        files = post_data.get('attachments', [])
         attachments = []
         for file in files:
             data = base64.b64decode(file.get("data")) 
