@@ -49,7 +49,7 @@ def send_emails(receivers, sender, subject, text, msg_type, attachments):
             client.sendmail(sender, to, msg.as_string())
         except Exception as e:
             current_app.logger.exception(
-                f'Error when sending email to {receiver}, {e}')
+                f'Error when sending email to {to}, {e}')
             return {'result': str(e)}, 500
     client.quit()
 
@@ -85,7 +85,14 @@ class WriteEmails(Resource):
         attachments = []
         for file in files:
             data = base64.b64decode(file.get("data")) 
+            # check if bigger to 2mb
+            if len(data) > 2000000:
+                return {'result': 'attachment to large'}, 413
+
             filename = file.get("name")
+            if not allowed_file(filename):
+                return {'result': 'File type not allowed'}, 400
+
             if data and allowed_file(filename):
                 if is_image(filename):
                     attach = MIMEImage(data)
@@ -110,6 +117,7 @@ class WriteEmails(Resource):
             return {'result': 'receiver must be a list'}, 400
 
         # Open the SMTP connection just to test that it's working before doing the real sending in the background
+
         try:
             env = os.environ.get('env')
             if env is None or env == 'charite':
