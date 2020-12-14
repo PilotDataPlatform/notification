@@ -84,7 +84,10 @@ class WriteEmails(Resource):
         files = post_data.get('attachments', [])
         attachments = []
         for file in files:
-            data = base64.b64decode(file.get("data")) 
+            if "," in file.get("data"):
+                data = base64.b64decode(file.get("data").split(",")[1]) 
+            else:
+                data = base64.b64decode(file.get("data")) 
             # check if bigger to 2mb
             if len(data) > 2000000:
                 return {'result': 'attachment to large'}, 413
