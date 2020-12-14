@@ -365,3 +365,38 @@ class TestWriteEmails(unittest.TestCase):
                 raise e
             finally:
                 os.system('rm ' + xml_path)
+
+    @patch('smtplib.SMTP')
+    def test_send_email_with_large_attachment(self, mock_smtp):
+        self.log.info('\n')
+        self.log.info('test send email with oversized attachment'.center(80, '-'))
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        large_file_path = dir_path + "/Testdateiäöüß_large.pdf"
+
+        self.log.info(f"Current directory {dir_path}")
+        if not path.isfile(large_file_path):
+            os.system('fallocate -l 2.5M ' + large_file_path)
+
+        with open(large_file_path, 'rb') as img:
+            payload = {"sender": "notification@vre",
+                       "receiver": ["jzhang@indocresearch.org"],
+                       "message": "test email",
+                       "subject": "test email",
+                       "msg_type": "plain",
+                       "attachments": [
+                           {"name": "Testdateiäöüß_large.pdf", "data": base64.b64encode(img.read()).decode('utf-8')}
+                       ]
+                       }
+            self.log.info(f"POST API: {self.post_api}")
+            self.log.info(f"POST PAYLOAD: {payload}")
+            try:
+                response = self.app.post(self.post_api, json=payload)
+                self.log.info(f"POST RESPONSE: {response.data}")
+                self.log.info(f"COMPARING: {response.status_code} VS {413}")
+                self.assertEqual(response.status_code, 413)
+            except Exception as e:
+                self.log.error(e)
+                raise e
+            finally:
+                os.system('rm ' + large_file_path)
+
