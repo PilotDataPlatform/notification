@@ -116,7 +116,8 @@ class WriteEmails(Resource):
             return {'result': 'wrong email type'}, 400
 
         log_data = post_data.copy()
-        del log_data["attachments"]
+        if log_data.get("attachments"):
+            del log_data["attachments"]
         current_app.logger.info(f'payload: {log_data}')
         current_app.logger.info(f'receiver: {receiver}')
 
