@@ -45,7 +45,7 @@ def send_emails(receivers, sender, subject, text, msg_type, attachments):
             msg.attach(MIMEText(text, 'html', 'utf-8'))
 
         try:
-            current_app.logger.info(f'message: {msg}')
+            current_app.logger.info(f"\nto: {to}\nfrom: {sender}\nsubject: {msg['Subject']}")
             client.sendmail(sender, to, msg.as_string())
         except Exception as e:
             current_app.logger.exception(
@@ -85,9 +85,10 @@ class WriteEmails(Resource):
         attachments = []
         for file in files:
             if "," in file.get("data"):
-                data = base64.b64decode(file.get("data").split(",")[1]) 
+                data = base64.b64decode(file.get("data").split(",")[1])
             else:
                 data = base64.b64decode(file.get("data")) 
+
             # check if bigger to 2mb
             if len(data) > 2000000:
                 return {'result': 'attachment to large'}, 413
@@ -102,6 +103,7 @@ class WriteEmails(Resource):
                     attach.add_header('Content-Disposition', 'attachment', filename=filename)
                 else:
                     attach = MIMEApplication(data, _subtype='pdf', filename=filename)
+                    attach.add_header('Content-Disposition', 'attachment', filename=filename)
                 attachments.append(attach)
         
         if sender is None or receiver is None or text is None:
@@ -113,7 +115,9 @@ class WriteEmails(Resource):
             current_app.logger.exception('wrong email type')
             return {'result': 'wrong email type'}, 400
 
-        current_app.logger.info(f'payload: {post_data}')
+        log_data = post_data.copy()
+        del log_data["attachments"]
+        current_app.logger.info(f'payload: {log_data}')
         current_app.logger.info(f'receiver: {receiver}')
 
         if not isinstance(receiver, list):
