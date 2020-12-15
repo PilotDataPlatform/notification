@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'small' }
     environment {
       imagename_dev = "10.3.7.221:5000/notification"
       imagename_staging = "10.3.7.241:5000/notification"
