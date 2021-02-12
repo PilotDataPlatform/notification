@@ -108,10 +108,10 @@ class TestWriteEmails(unittest.TestCase):
         try:
             self.log.info(f"COMPARING: {response.status_code} VS {400}")
             self.assertEqual(response.status_code, 400)
-            self.log.info(f"COMPARING: {b'missing sender or receiver or message'}")
+            self.log.info(f"COMPARING: {b'Text or template is required'}")
             self.log.info("IN")
             self.log.info(f"{response.data}")
-            assert b"missing sender or receiver or message" in response.data
+            assert b"Text or template is required" in response.data
         except Exception as e:
             self.log.error(e)
             raise e
