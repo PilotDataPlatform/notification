@@ -1,4 +1,4 @@
-from flask import request, after_this_request, current_app
+from flask import request, after_this_request, current_app, render_template
 from flask_restx import Api, Resource, fields
 from config import ConfigClass
 from service_email import api
@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 from multiprocessing import Process
+import jinja2
 import requests
 import smtplib
 import os
@@ -79,10 +80,26 @@ class WriteEmails(Resource):
         sender = post_data.get('sender', None)
         receiver = post_data.get('receiver', None)
         text = post_data.get('message', None)
+        template = post_data.get('template', None)
+        template_kwargs = post_data.get('template_kwargs', {})
         subject = post_data.get('subject', None)
         msg_type = post_data.get('msg_type', 'plain')
         files = post_data.get('attachments', [])
         attachments = []
+
+        if text and template:
+            return {'result': 'Please only set text or template, not both'}, 400
+
+        if not text and not template:
+            current_app.logger.exception('Text or template is required')
+            return {'result': 'Text or template is required'}, 400
+
+        if template:
+            try:
+                text = render_template(template, **template_kwargs)
+            except jinja2.exceptions.TemplateNotFound as e:
+                return {'result': 'Template not found'}, 404
+
         for file in files:
             if "," in file.get("data"):
                 data = base64.b64decode(file.get("data").split(",")[1])
@@ -106,7 +123,7 @@ class WriteEmails(Resource):
                     attach.add_header('Content-Disposition', 'attachment', filename=filename)
                 attachments.append(attach)
         
-        if sender is None or receiver is None or text is None:
+        if sender is None or receiver is None:
             current_app.logger.exception(
                 'missing sender or receiver or message')
             return {'result': 'missing sender or receiver or message'}, 400
@@ -143,7 +160,10 @@ class WriteEmails(Resource):
             return {'result': str(e)}, 500
         client.quit()
 
-        p = Process(target=send_emails, args=(receiver, sender, subject, text, msg_type, attachments))
+        p = Process(
+            target=send_emails, 
+            args=(receiver, sender, subject, text, msg_type, attachments),
+        )
         p.daemon = True
         p.start()
         current_app.logger.info(f'Email sent successfully to {receiver}')
