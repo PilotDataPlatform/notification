@@ -15,6 +15,7 @@ import smtplib
 from services.service_logger.logger_factory_service import SrvLoggerFactory
 from app.config import ConfigClass
 from app.models.models_email import POSTEmail, POSTEmailResponse
+from app.models.base_models import EAPIResponseCode
 from .utils import allowed_file, is_image
 
 router = APIRouter()
@@ -35,7 +36,9 @@ def send_emails(receivers, sender, subject, text, msg_type, attachments):
     except smtplib.socket.gaierror as e:
         _logger.exception(
             f'Error connecting with Mail host, {e}')
-        return {'result': str(e)}, 500
+        api_response.result = str(e)
+        api_response.code = EAPIResponseCode.internal_error
+        return api_response.json_response()
 
     for to in receivers:
         msg = MIMEMultipart()
@@ -57,7 +60,9 @@ def send_emails(receivers, sender, subject, text, msg_type, attachments):
         except Exception as e:
             _logger.exception(
                 f'Error when sending email to {to}, {e}')
-            return {'result': str(e)}, 500
+            api_response.result = str(e)
+            api_response.code = EAPIResponseCode.internal_error
+            return api_response.json_response()
     client.quit()
 
 
@@ -73,13 +78,13 @@ class WriteEmails:
 
         if text and template:
             api_response.result = 'Please only set text or template, not both'
-            api_response.code = 400
+            api_response.code = EAPIResponseCode.bad_request
             return api_response.json_response()
 
         if not text and not template:
             _logger.exception('Text or template is required')
             api_response.result = 'Text or template is required'
-            api_response.code = 400
+            api_response.code = EAPIResponseCode.bad_request
             return api_response.json_response()
 
         if template:
@@ -87,34 +92,42 @@ class WriteEmails:
                 template = templates.get_template(data.template)
                 text = template.render(data.template_kwargs)
             except jinja2.exceptions.TemplateNotFound as e:
-                return {'result': 'Template not found'}, 404
+                api_response.result = 'Template not found'
+                api_response.code = EAPIResponseCode.not_found
+                return api_response.json_response()
 
+        attachments = []
         for file in data.attachments:
             if "," in file.get("data"):
-                data = base64.b64decode(file.get("data").split(",")[1])
+                attach_data = base64.b64decode(file.get("data").split(",")[1])
             else:
-                data = base64.b64decode(file.get("data"))
+                attach_data = base64.b64decode(file.get("data"))
 
             # check if bigger to 2mb
-            if len(data) > 2000000:
-                return {'result': 'attachment to large'}, 413
+            if len(attach_data) > 2000000:
+                api_response.result = 'attachement to large'
+                api_response.code = EAPIResponseCode.to_large
+                return api_response.json_response()
 
             filename = file.get("name")
             if not allowed_file(filename):
-                return {'result': 'File type not allowed'}, 400
+                api_response.result = 'File type not allowed'
+                api_response.code = EAPIResponseCode.bad_request
+                return api_response.json_response()
 
-            if data and allowed_file(filename):
+            if attach_data and allowed_file(filename):
                 if is_image(filename):
-                    attach = MIMEImage(data)
+                    attach = MIMEImage(attach_data)
                     attach.add_header('Content-Disposition', 'attachment', filename=filename)
                 else:
-                    attach = MIMEApplication(data, _subtype='pdf', filename=filename)
+                    attach = MIMEApplication(attach_data, _subtype='pdf', filename=filename)
                     attach.add_header('Content-Disposition', 'attachment', filename=filename)
                 attachments.append(attach)
 
         if data.msg_type not in ['html', 'plain']:
-            _logger.exception('wrong email type')
-            return {'result': 'wrong email type'}, 400
+            api_response.result = 'wrong email type'
+            api_response.code = EAPIResponseCode.bad_request
+            return api_response.json_response()
 
         log_data = data.__dict__.copy()
         if log_data.get("attachments"):
@@ -135,14 +148,14 @@ class WriteEmails:
 
             _logger.info('email server connection established')
         except smtplib.socket.gaierror as e:
-            _logger.exception(
-                f'Error connecting with Mail host, {e}')
-            return {'result': str(e)}, 500
+            api_response.result = str(e)
+            api_response.code = EAPIResponseCode.internal_error
+            return api_response.json_response()
         client.quit()
 
         p = Process(
             target=send_emails,
-            args=(data.receiver, data.sender, data.subject, text, data.msg_type, data.attachments),
+            args=(data.receiver, data.sender, data.subject, text, data.msg_type, attachments),
         )
         p.daemon = True
         p.start()
