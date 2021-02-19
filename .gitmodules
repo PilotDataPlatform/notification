@@ -1,3 +1,4 @@
 [submodule "services/service_logger"]
 	path = services/service_logger
 	url = https://git.indocresearch.org/charite/service_logger/
+        branch = .
