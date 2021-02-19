@@ -15,7 +15,7 @@ pipeline {
           script {
               git branch: "k8s-dev",
                   url: 'https://git.indocresearch.org/platform/service_notification.git',
-                  credentialsId: 'lzhao',
+                  credentialsId: 'lzhao'
               sh 'printenv'
               sh 'git submodule update --recursive --init --remote
             }
