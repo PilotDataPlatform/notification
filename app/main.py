@@ -7,7 +7,7 @@ from .api_registry import api_registry
 app = FastAPI(
     title="Notification Service",
     description="Service for notifications",
-    docs_url="/v1/api-docs",
+    docs_url="/v1/api-doc",
     version=ConfigClass.version
 )
 app.add_middleware(DBSessionMiddleware, db_url=ConfigClass.SQLALCHEMY_DATABASE_URI)
