@@ -29,6 +29,10 @@ class AnnouncementModel(Base):
 
     def to_dict(self):
         result = {}
-        for field in ["id", "project_code", "content", "version"]:
-            result[field] = getattr(self, field)
+        for field in ["id", "project_code", "content", "version", "date"]:
+            if field == "date":
+                result[field] = str(getattr(self, field))
+            else:
+                result[field] = getattr(self, field)
+
         return result
