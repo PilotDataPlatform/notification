@@ -35,7 +35,7 @@ class POSTAnnouncementResponse(APIResponse):
     })
 
 
-class POSTAnnouncement(APIResponse):
+class POSTAnnouncement(BaseModel):
     project_code: str
     content: str
     publisher: str
