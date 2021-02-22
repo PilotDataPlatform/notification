@@ -1,8 +1,10 @@
 from fastapi import APIRouter
 from fastapi_utils.cbv import cbv
 from fastapi_sqlalchemy import db
+from app.models.base_models import EAPIResponseCode
 from app.models.models_announcement import GETAnnouncementResponse, POSTAnnouncementResponse, POSTAnnouncement
 from app.models.sql_announcement import AnnouncementModel
+from datetime import datetime
 import time
 
 router = APIRouter()
@@ -11,14 +13,24 @@ router = APIRouter()
 class APIAnnouncement:
 
     @router.get("/", response_model=GETAnnouncementResponse, summary="Query all announcements for project")
-    async def get_announcements(self, project_code: str, version: str = ""):
+    async def get_announcements(self, project_code: str, start_date: str = "", end_date: str = "", version: str = ""):
         api_response = GETAnnouncementResponse()
+
+        if start_date and not end_date or end_date and not start_date:
+            api_response.error_msg = "Both start_date and end_date need to be supplied"
+            api_response.code = EAPIResponseCode.bad_request
+            return api_response.json_response()
+
         query_data = {
             "project_code": project_code,
         }
         if version:
             query_data["version"] = version
-        announcements = db.session.query(AnnouncementModel).filter_by(**query_data).all()
+
+        announcements = db.session.query(AnnouncementModel).filter_by(**query_data)
+        if start_date and end_date:
+            announcements = announcements.filter(AnnouncementModel.date >= start_date, AnnouncementModel.date <= end_date)
+        announcements = announcements.all()
         results = []
         for announcement in announcements:
             results.append(announcement.to_dict())
