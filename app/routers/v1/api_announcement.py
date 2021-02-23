@@ -1,8 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 from fastapi_sqlalchemy import db
 from app.models.base_models import EAPIResponseCode
-from app.models.models_announcement import GETAnnouncementResponse, POSTAnnouncementResponse, POSTAnnouncement
+from app.models.models_announcement import GETAnnouncementResponse, POSTAnnouncementResponse, \
+        POSTAnnouncement, GETAnnouncement
 from app.models.sql_announcement import AnnouncementModel
 from datetime import datetime
 import time
@@ -13,27 +14,43 @@ router = APIRouter()
 class APIAnnouncement:
 
     @router.get("/", response_model=GETAnnouncementResponse, summary="Query all announcements for project")
-    async def get_announcements(self, project_code: str, start_date: str = "", end_date: str = "", version: str = ""):
+    async def get_announcements(self, params: GETAnnouncement = Depends(GETAnnouncement)):
         api_response = GETAnnouncementResponse()
 
-        if start_date and not end_date or end_date and not start_date:
+        if params.start_date and not params.end_date or params.end_date and not params.start_date:
             api_response.error_msg = "Both start_date and end_date need to be supplied"
             api_response.code = EAPIResponseCode.bad_request
             return api_response.json_response()
 
         query_data = {
-            "project_code": project_code,
+            "project_code": params.project_code,
         }
-        if version:
-            query_data["version"] = version
+        if params.version:
+            query_data["version"] = params.version
 
-        announcements = db.session.query(AnnouncementModel).filter_by(**query_data)
-        if start_date and end_date:
-            announcements = announcements.filter(AnnouncementModel.date >= start_date, AnnouncementModel.date <= end_date)
+        if params.sorting:
+            if params.order == "asc":
+                sort_param = getattr(AnnouncementModel, params.sorting).asc()
+            else:
+                sort_param = getattr(AnnouncementModel, params.sorting).desc()
+            announcements = db.session.query(AnnouncementModel).filter_by(**query_data).order_by(sort_param)
+        else:
+            announcements = db.session.query(AnnouncementModel).filter_by(**query_data).order_by(sort_param)
+
+        if params.start_date and params.end_date:
+            announcements = announcements.filter(
+                AnnouncementModel.date >= params.start_date, 
+                AnnouncementModel.date <= params.end_date
+            )
+        total = announcements.count()
+        announcements = announcements.limit(params.page_size).offset(params.page*params.page_size)
         announcements = announcements.all()
         results = []
         for announcement in announcements:
             results.append(announcement.to_dict())
+        api_response.page = params.page
+        api_response.num_of_pages = int(int(total) / int(params.page_size))
+        api_response.total = total
         api_response.result = results
         return api_response.json_response()
 
