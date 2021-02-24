@@ -24,7 +24,7 @@ def upgrade():
     sa.Column('content', sa.String(), nullable=True),
     sa.Column('version', sa.String(), nullable=True),
     sa.Column('publisher', sa.String(), nullable=True),
-    sa.Column('date', sa.Date(), nullable=True),
+    sa.Column('date', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id'),
     sa.UniqueConstraint('project_code', 'version', name='project_code_version'),
