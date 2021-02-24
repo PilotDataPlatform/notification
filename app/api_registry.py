@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers.v1 import api_announcement
+from .routers.v1.api_announcement import api_announcement
 from .routers.v1.api_email import api_email
 
 def api_registry(app: FastAPI):
