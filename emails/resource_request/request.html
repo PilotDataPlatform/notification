@@ -5,6 +5,7 @@
         <p>{{ username }} has requested access into {{ request_for }} in the project:</p>
         <p>Project Name: {{ project_name }}</p>
         <p>Project Code: {{ project_code }}</p>
+        <p>{{ username }}'s role: Project {{ user_role }}</p>
         <br>
         <p>In order to setup the permission, please visit the link below:</p>
         {% if request_for == "Guacamole" %}
