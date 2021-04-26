@@ -13,6 +13,8 @@ pipeline {
         when {branch "k8s-dev"}
         steps{
           script {
+              sh 'git --version'
+              sh 'whoami'
               git branch: "k8s-dev",
                   url: 'https://git.indocresearch.org/platform/service_notification.git',
                   credentialsId: 'lzhao'
