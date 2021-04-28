@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
     <body>
-      <h4>Hello {{ user_email }},</h4>
-      <p>{{ inviter_name }}({{ inviter_email }}) has invited you to join the VRE!</p>
+      <h4>Hello {{ user_first }},</h4>
+      <p><b>{{ inviter_name }}({{ inviter_email }}) has invited you to join the VRE!</b></p>
       <p>Platform Role: {{ platform_role }}</p>
-      <p>You already have an account in the Charité Active Directory, which will be federated into the VRE.</p>
-      <p>You can then use your Charité account credential to log into the VRE Portal at <a href="{{ url }}">{{ url }}</a>.</p>
-      <p>If you have questions about how to fill out the form, please contact your Charité partner for assistance, or send an email to {{ support_email }}.</p>
+      <p>To access your Projects on the VRE Portal, navigate to <a href="{{ url }}">{{ url }}</a> and log in with your Charité credentials.  You will be prompted to accept the Terms of Use and will be given access to your VRE Account and any Projects you have been invited to.</p>
+      <p>If you require assistance logging into your Charité account or need to reset your password, please contact the Charité IT Helpdesk at {{ helpdesk_email }}.  For additional information about the VRE, you can check out the <a href="{{ domain }}/xwiki/wiki/vrepublic/view/Main/user_guide/">VRE User Guide.</a></p>
       <p>Warm Regards,</p>
       <p>- The VRE Support Team</p>
     </body>
