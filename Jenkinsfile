@@ -17,7 +17,7 @@ pipeline {
                   url: 'https://git.indocresearch.org/platform/service_notification.git',
                   credentialsId: 'lzhao'
               sh 'printenv'
-              sh 'git submodule update --recursive --init --remote'
+              //sh 'git submodule update --recursive --init --remote'
             }
         }
     }
@@ -66,7 +66,7 @@ pipeline {
               url: 'https://git.indocresearch.org/platform/service_notification.git',
               credentialsId: 'lzhao'
             sh 'printenv'
-            sh 'git submodule update --recursive --init --remote'
+            //sh 'git submodule update --recursive --init --remote'
             }
         }
     }
