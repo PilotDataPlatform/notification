@@ -3,7 +3,6 @@ import requests
 from requests.models import HTTPError
 
 
-os.environ['env']='test'
 srv_namespace = "service_notification"
 CONFIG_CENTER = "http://10.3.7.222:5062" \
     if os.environ.get('env') == "test" \
