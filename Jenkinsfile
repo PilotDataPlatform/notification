@@ -27,7 +27,7 @@ pipeline {
       steps{
         sh "pip3 install -r requirements.txt"
         sh "pip3 install -r tests/test_requirements.txt"
-        sh "pytest"
+        sh "pytest -c tests/pytest.ini"
       }
     }
 
