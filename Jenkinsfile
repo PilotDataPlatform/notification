@@ -27,7 +27,7 @@ pipeline {
       steps{
         sh "pip3 install -r requirements.txt"
         sh "pip3 install -r tests/test_requirements.txt"
-        sh "pytest"
+        sh "pytest -c tests/pytest.ini"
       }
     }
 
@@ -99,5 +99,11 @@ pipeline {
       }
     }
   }
+  post {
+      failure {
+        slackSend color: '#FF0000', message: "Build Failed! - ${env.JOB_NAME} ${env.BUILD_NUMBER}  (<${env.BUILD_URL}|Open>)", channel: 'jenkins-dev-staging-monitor'
+      }
+  }
+
 }
 
