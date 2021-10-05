@@ -3,65 +3,66 @@
     <table>
       {% if title %}
       <tr>
-        <td><b>Title</b></td>
+        <td><b>Title:&nbsp;</b></td>
         <td>{{ title }}</td>
       </tr>
       {% endif %}
       {% if first_name or last_name %}
       <tr>
-        <td><b>Name</b></td>
+        <td><b>Name:&nbsp;</b></td>
         <td>{{ first_name }} {{ last_name }}</td>
       </tr>
       {% endif %}
       {% if institution %}
       <tr>
-        <td><b>Institution</b></td>
+        <td><b>Institution:&nbsp;</b></td>
         <td>{{ institution }}</td>
       </tr>
       {% endif %}
       {% if username %}
       <tr>
-        <td><b>Username</b></td>
+        <td><b>Username:&nbsp;</b></td>
         <td>{{ username }}</td>
       </tr>
       {% endif %}
       {% if email %}
       <tr>
-        <td><b>Email Address</b></td>
+        <td><b>Email Address:&nbsp;</b></td>
         <td>{{ email }}</td>
         <tr>
       </tr>
       {% endif %}
       {% if send_date %}
       <tr>
-        <td><b>Date/Time</b></td>
+        <td><b>Date/Time:&nbsp;</b></td>
         <td>{{ send_date }}</td>
       </tr>
       {% endif %}
       {% if project_name %}
       <tr>
-        <td><b>Project</b></td>
+        <td><b>Project:&nbsp;</b></td>
         <td>{{ project_name }}</td>
       </tr>
       {% endif %}
       {% if status %}
       <tr>
-        <td><b>Status</b></td>
+        <td><b>Status:&nbsp;</b></td>
         <td>{{ status }}</td>
       </tr>
       {% endif %}
       {% if agreement_info %}
       <tr>
-        <td><b>Data Processing Agreement Info</b></td>
+        <td><b>Data Processing Agreement Info:&nbsp;</b></td>
         <td>{{ agreement_info }}</td>
       </tr>
       {% endif %}
       {% if notes %}
       <tr>
-        <td><b>Notes</b></td>
+        <td><b>Notes:&nbsp;</b></td>
         <td>{{ notes }}</td>
       </tr>
       {% endif %}
     </table>
+    <p>This is an automated notification, please do not reply.  To view and edit user accounts on the VRE, please navigate to the <a href="{{ url }}/users">VRE User Management</p>
   </body>
 </html>
