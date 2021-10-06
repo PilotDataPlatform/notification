@@ -50,17 +50,24 @@
         <td>{{ status }}</td>
       </tr>
       {% endif %}
-      {% if agreement_info %}
-      <tr>
-        <td><b>Data Processing Agreement Info:&nbsp;</b></td>
-        <td>{{ agreement_info }}</td>
-      </tr>
-      {% endif %}
       {% if notes %}
       <tr>
-        <td><b>Notes:&nbsp;</b></td>
+        <td valign="top" style="vertical-align: top;"><b>Notes:&nbsp;</b></td>
         <td>{{ notes }}</td>
       </tr>
+      {% endif %}
+      {% if agreement_info or why_interested %}
+        <tr>
+          <td valign="top" style="vertical-align: top;"><b>Notes:&nbsp;</b></td>
+          <td>
+            <p>The requester has provided details regarding a contract or Data Processing Agreement that require review, please see details below:</p>
+            <p><b>Information about contract or Data Processing Agreement (reference number,  description):</b></p>
+            <p>{{ agreement_info }}</p>
+            <br>
+            <p><b>Why are you interested in using the VRE?</b></p>
+            <p>{{ why_interested }}</p>
+          </td>
+        </tr>
       {% endif %}
     </table>
     <p>This is an automated notification, please do not reply.  To view and edit user accounts on the VRE, please navigate to the <a href="{{ url }}/users">VRE User Management</p>
