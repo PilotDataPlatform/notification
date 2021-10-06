@@ -56,14 +56,17 @@
         <td>{{ notes }}</td>
       </tr>
       {% endif %}
-      {% if agreement_info or why_interested %}
+      {% if agreement_info %}
+      <tr>
+        <td valign="top" style="vertical-align: top;"><b>Data Processing Agreement Info:&nbsp;</b></td>
+        <td>{{ agreement_info }}</td>
+      </tr>
+      {% endif %}
+      {% if why_interested %}
         <tr>
           <td valign="top" style="vertical-align: top;"><b>Notes:&nbsp;</b></td>
           <td>
             <p>The requester has provided details regarding a contract or Data Processing Agreement that require review, please see details below:</p>
-            <p><b>Information about contract or Data Processing Agreement (reference number,  description):</b></p>
-            <p>{{ agreement_info }}</p>
-            <br>
             <p><b>Why are you interested in using the VRE?</b></p>
             <p>{{ why_interested }}</p>
           </td>
