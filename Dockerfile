@@ -4,5 +4,5 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-CMD ["./gunicorn_starter.sh"]
-# CMD ["python","run.py"]
+#CMD ["./gunicorn_starter.sh"]
+CMD ["python","run.py"]
