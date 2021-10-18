@@ -1,7 +1,7 @@
 import os
 import requests
 from requests.models import HTTPError
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Extra
 from typing import Dict, Set, List, Any
 from functools import lru_cache
 from pprint import pprint
@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = '.env'
         env_file_encoding = 'utf-8'
+        extra = Extra.allow
 
         @classmethod
         def customise_sources(
