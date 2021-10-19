@@ -4,7 +4,6 @@ from requests.models import HTTPError
 from pydantic import BaseSettings, Extra
 from typing import Dict, Set, List, Any
 from functools import lru_cache
-from pprint import pprint
 
 SRV_NAMESPACE = os.environ.get("APP_NAME", "service_notification")
 CONFIG_CENTER_ENABLED = os.environ.get("CONFIG_CENTER_ENABLED", "false")
@@ -37,10 +36,10 @@ class Settings(BaseSettings):
 
     # the packaged modules
     API_MODULES: List = ["service_email"]
-    POSTFIX: str
-    SMTP_USER: str
-    SMTP_PASS: str
-    SMTP_PORT: str
+    POSTFIX: str = ""
+    SMTP_USER: str = ""
+    SMTP_PASS: str = ""
+    SMTP_PORT: str = ""
 
     POSTFIX_URL: str
     POSTFIX_PORT: str
@@ -50,7 +49,7 @@ class Settings(BaseSettings):
 
     RDS_HOST: str
     RDS_PORT: str
-    RDS_DBNAME: str
+    RDS_DBNAME: str = ""
     RDS_USER: str
     RDS_PWD: str
     RDS_SCHEMA_DEFAULT:str 
@@ -78,7 +77,6 @@ class Settings(BaseSettings):
 @lru_cache(1)
 def get_settings():
     settings =  Settings()
-    pprint(settings)
     return settings
 
 class ConfigClass(object):
