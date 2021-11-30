@@ -27,6 +27,8 @@ def vault_factory(config_center) -> dict:
 class Settings(BaseSettings):
     port: int = 5065
     host: str = "0.0.0.0"
+    namespace: str = ""
+    env: str = "test"
 
     NFS_ROOT_PATH = "./"
     VRE_ROOT_PATH = "/vre-data"
@@ -36,10 +38,10 @@ class Settings(BaseSettings):
 
     # the packaged modules
     API_MODULES: List = ["service_email"]
-    POSTFIX: str = ""
-    SMTP_USER: str = ""
-    SMTP_PASS: str = ""
-    SMTP_PORT: str = ""
+    postfix: str = ""
+    smtp_user: str = ""
+    smtp_pass: str = ""
+    smtp_port: str = ""
 
     POSTFIX_URL: str
     POSTFIX_PORT: str
@@ -83,6 +85,8 @@ class ConfigClass(object):
     settings = get_settings()
 
     version = "1.1.0"
+    env = settings.env
+    disk_namespace = settings.namespace
 
     # disk mounts
     NFS_ROOT_PATH = settings.NFS_ROOT_PATH
@@ -91,10 +95,10 @@ class ConfigClass(object):
 
     # the packaged modules
     api_modules = settings.API_MODULES
-    postfix = settings.POSTFIX
-    smtp_user = settings.SMTP_USER
-    smtp_pass = settings.SMTP_PASS
-    smtp_port = settings.SMTP_PORT
+    postfix = settings.postfix
+    smtp_user = settings.smtp_user
+    smtp_pass = settings.smtp_pass
+    smtp_port = settings.smtp_port
 
     POSTFIX_URL = settings.POSTFIX_URL
     POSTFIX_PORT = settings.POSTFIX_PORT
