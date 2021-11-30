@@ -30,7 +30,7 @@ _logger = SrvLoggerFactory('api_emails').get_logger()
 
 def send_emails(receivers, sender, subject, text, msg_type, attachments) -> JSONResponse:
     try:
-        env = os.environ.get('env')
+        env = ConfigClass.env
         if env is None or env == 'charite':
             client = smtplib.SMTP(
                 ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
@@ -145,7 +145,7 @@ class WriteEmails:
 
         # Open the SMTP connection just to test that it's working before doing the real sending in the background
         try:
-            env = os.environ.get('env')
+            env = ConfigClass.env
             if env is None or env == 'charite':
                 client = smtplib.SMTP(
                     ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
