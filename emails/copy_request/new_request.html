@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
     <body>
-      <p>Dear {{ admin_username }},</p>
-      <p>There is a new request to approve data copy to Core from your Project member:</p>
+      <p>Dear {{ admin_first_name }},</p>
+      <p>A VRE project member has made a request to copy VRE Project data from the Green Room to the Core.</p>
       <p><b>Project:</b> {{ project_name }}</p>
-      <p><b>User name:</b> {{ username }}</p>
-      <p><b>Email:</b>{{ email }}</p>
-      <p>This is an automated notification, please do not reply. To review and approve the request within your Project, please navigate to the Project Request page. </p>
+      <p><b>Requested on:</b> {{ request_timestamp }}</p>
+      <p><b>Requested by:</b> {{ user_first_name }} {{ user_last_name }}</p>
+      <p>To review the details of this request within your Project, please sign into the VRE and navigate to the Requests page.</p>
+      <p>This is an automated notification.  Please do not reply.</p>
     </body>
 </html>
