@@ -1,8 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_sqlalchemy import DBSessionMiddleware
-from .config import ConfigClass
+from .config import ConfigClass, SRV_NAMESPACE
 from .api_registry import api_registry
+from opentelemetry import trace
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.resources import SERVICE_NAME
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
 
 app = FastAPI(
     title="Notification Service",
@@ -23,3 +32,25 @@ app.add_middleware(
 # API registry
 ## v1
 api_registry(app)
+
+
+# Implement opentelemetry tracing
+def instrument_app(app) -> None:
+    """Instrument the application with OpenTelemetry tracing."""
+
+    tracer_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: SRV_NAMESPACE}))
+    trace.set_tracer_provider(tracer_provider)
+
+    jaeger_exporter = JaegerExporter(
+        agent_host_name='127.0.0.1', agent_port=6831
+    )
+
+    tracer_provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
+
+    FastAPIInstrumentor.instrument_app(app)
+    RequestsInstrumentor().instrument()
+
+
+if ConfigClass.opentelemetry_enabled:
+    print("Opentelemetry activated")
+    instrument_app(app)

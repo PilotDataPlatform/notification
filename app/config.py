@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     namespace: str = ""
     env: str = "test"
+    OPEN_TELEMETRY_ENABLED: str
 
     NFS_ROOT_PATH = "./"
     VRE_ROOT_PATH = "/vre-data"
@@ -87,6 +88,7 @@ class ConfigClass(object):
     version = "1.1.0"
     env = settings.env
     disk_namespace = settings.namespace
+    opentelemetry_enabled = settings.OPEN_TELEMETRY_ENABLED == "TRUE"
 
     # disk mounts
     NFS_ROOT_PATH = settings.NFS_ROOT_PATH

@@ -12,4 +12,8 @@ FastAPI-SQLAlchemy==0.2.1
 Jinja2==2.11.2
 psycopg2==2.8.5
 python-dotenv==0.19.1
+opentelemetry-exporter-jaeger==1.6.2
+opentelemetry-instrumentation==0.26b1
+opentelemetry-instrumentation-fastapi==0.26b1
+opentelemetry-instrumentation-requests==0.26b1
 
