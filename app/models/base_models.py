@@ -27,6 +27,12 @@ class APIResponse(BaseModel):
         data = self.dict()
         data["code"] = self.code.value
         return JSONResponse(status_code=self.code.value, content=data)
+    
+    def set_error_msg(self, error_msg):
+        self.error_msg = error_msg
+    
+    def set_code(self, code):
+        self.code = code
 
 
 class PaginationRequest(BaseModel):

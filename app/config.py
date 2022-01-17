@@ -52,7 +52,7 @@ class Settings(BaseSettings):
 
     RDS_HOST: str
     RDS_PORT: str
-    RDS_DBNAME: str = ""
+    RDS_DBNAME: str
     RDS_USER: str
     RDS_PWD: str
     RDS_SCHEMA_DEFAULT:str 
@@ -116,5 +116,3 @@ class ConfigClass(object):
     RDS_PWD = settings.RDS_PWD
     RDS_SCHEMA_DEFAULT = settings.RDS_SCHEMA_DEFAULT
     SQLALCHEMY_DATABASE_URI = f"postgresql://{RDS_USER}:{RDS_PWD}@{RDS_HOST}/{RDS_DBNAME}"
-
-
