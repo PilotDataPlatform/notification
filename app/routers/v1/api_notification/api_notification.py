@@ -15,8 +15,8 @@ class APIAnnouncement:
     async def create_notification(self, data: POSTNotification):
         api_response = POSTNotificationResponse()
         if len(data.message) > 250:
-            api_response.error_msg = "Message too long"
-            api_response.code = EAPIResponseCode.bad_request
+            api_response.set_error_msg("Message too long")
+            api_response.set_code(EAPIResponseCode.bad_request)
             return api_response.json_response()
         model_data = {
             'type': data.type,
@@ -32,5 +32,8 @@ class APIAnnouncement:
             db.session.refresh(notification)
         except Exception as e:
             print(e)
+            api_response.set_error_msg("Failed to write to database")
+            api_response.set_code(EAPIResponseCode.bad_request)
+            return api_response.json_response()
         api_response.result = notification.to_dict()
         return api_response.json_response()
