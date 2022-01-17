@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field
 from .base_models import APIResponse
 
 
+# POST
+
 class POSTNotificationResponse(APIResponse):
     result: dict = Field({}, example={
             'code': 200,
@@ -32,3 +34,30 @@ class POSTNotification(BaseModel):
     type: str
     message: str
     detail: POSTNotificationDetail
+
+
+# GET
+
+class GETNotificationResponse(APIResponse):
+    result: dict = Field({}, example={
+            'code': 200,
+            'error_msg': '',
+            'page': 0,
+            'total': 1,
+            'num_of_pages': 1,
+            'result': {
+                'type': 'maintenance',
+                'message': 'Notification response message',
+                'detail': {
+                    'maintenance_date': '2022-01-01',
+                    'duration': '3',
+                    'duration_unit': 'h',
+                }
+            }
+    })
+
+
+class GETNotifications(BaseModel):
+    all: bool = True
+    page_size: int = 10
+    page: int = 0

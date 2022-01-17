@@ -1,16 +1,17 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
 from app.models.base_models import EAPIResponseCode
-from app.models.models_notification import POSTNotification
-from app.models.models_notification import POSTNotificationResponse
+from app.models.models_notification import POSTNotification, POSTNotificationResponse, GETNotifications, GETNotificationResponse
 from app.models.sql_announcement import NotificationModel
+from app.routers.v1.router_utils import paginate
 
 router = APIRouter()
+routerBulk = APIRouter()
 
 
 @cbv(router)
-class APIAnnouncement:
+class APINotification:
     @router.post("/", response_model=POSTNotificationResponse, summary="Create new maintenance notification")
     async def create_notification(self, data: POSTNotification):
         api_response = POSTNotificationResponse()
@@ -36,4 +37,13 @@ class APIAnnouncement:
             api_response.set_code(EAPIResponseCode.bad_request)
             return api_response.json_response()
         api_response.result = notification.to_dict()
+        return api_response.json_response()
+
+@cbv(routerBulk)
+class APINotificationBulk:
+    @routerBulk.get("/", response_model=GETNotificationResponse, summary="Query many maintenance notifications")
+    async def get_all_notifications(self, params: GETNotifications = Depends(GETNotifications)):
+        api_response = GETNotificationResponse()
+        notifications = db.session.query(NotificationModel)
+        paginate(params, api_response, notifications)
         return api_response.json_response()
