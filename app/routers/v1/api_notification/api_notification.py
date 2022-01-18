@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
 from app.models.base_models import EAPIResponseCode
-from app.models.models_notification import POSTNotification, POSTNotificationResponse, GETNotification, GETNotifications, GETNotificationResponse
+from app.models.models_notification import POSTNotification, POSTNotificationResponse, GETNotification, GETNotifications, GETNotificationResponse, DELETENotification, DELETENotificationResponse
 from app.models.sql_announcement import NotificationModel
 from app.routers.v1.router_utils import paginate
 
@@ -42,16 +42,25 @@ class APINotification:
     @router.get('/', response_model=GETNotificationResponse, summary='Query one maintenance notification by ID')
     async def get_notification(self, params: GETNotification = Depends(GETNotification)):
         api_response = GETNotificationResponse()
-        query_data = {
-            'id': params.id,
-        }
-        notification = db.session.query(NotificationModel).filter_by(**query_data)
+        notification = db.session.query(NotificationModel).filter_by(id=params.id)
         api_response.page = 0
         api_response.num_of_pages = 1
         api_response.total = 1
         api_response.result = notification.first().to_dict()
         return api_response.json_response()
 
+    @router.delete('/', response_model=DELETENotificationResponse, summary='Delete one maintenance notification by ID')
+    async def get_notification(self, params: DELETENotification = Depends(DELETENotification)):
+        api_response = DELETENotificationResponse()
+        try:
+            notification = db.session.query(NotificationModel).filter_by(id=params.id)
+            db.session.delete(notification.first())
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            api_response.set_error_msg('Failed to delete from database')
+            api_response.set_code(EAPIResponseCode.bad_request)
+        return api_response.json_response()
 
 @cbv(routerBulk)
 class APINotificationBulk:
