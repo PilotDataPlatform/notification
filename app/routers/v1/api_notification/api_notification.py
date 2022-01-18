@@ -103,8 +103,7 @@ class APINotificationBulk:
                 api_response.error_msg = "Username must be provided if all is false"
                 api_response.code = EAPIResponseCode.bad_request
                 return api_response.json_response()
-            username = params.username
-            unsubs = db.session.query(UnsubscribedModel).filter_by(username=username).all()
+            unsubs = db.session.query(UnsubscribedModel).filter_by(username=params.username).all()
             unsubNotificationIds = []
             for unsub in unsubs:
                 unsubNotificationIds.append(unsub.notification_id)
