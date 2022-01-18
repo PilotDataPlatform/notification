@@ -1,5 +1,5 @@
 from fastapi_sqlalchemy import db 
-from sqlalchemy import Column, String, Date, DateTime, Integer, Column, UniqueConstraint
+from sqlalchemy import Column, String, DateTime, Integer, Column, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from app.config import ConfigClass

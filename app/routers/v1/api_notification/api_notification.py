@@ -2,9 +2,19 @@ from fastapi import APIRouter, Depends
 from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
 from app.models.base_models import EAPIResponseCode
-from app.models.models_notification import POSTNotification, POSTNotificationResponse, GETNotification, GETNotifications, GETNotificationResponse, DELETENotification, DELETENotificationResponse, PUTNotification, PUTNotificationResponse
-from app.models.models_unsub import POSTUnsub, POSTUnsubResponse
-from app.models.sql_announcement import NotificationModel, UnsubscribedModel
+from app.models.models_notification import POSTNotification
+from app.models.models_notification import POSTNotificationResponse
+from app.models.models_notification import GETNotification
+from app.models.models_notification import GETNotifications
+from app.models.models_notification import GETNotificationResponse
+from app.models.models_notification import DELETENotification
+from app.models.models_notification import DELETENotificationResponse
+from app.models.models_notification import PUTNotification
+from app.models.models_notification import PUTNotificationResponse
+from app.models.models_unsub import POSTUnsub
+from app.models.models_unsub import POSTUnsubResponse
+from app.models.sql_announcement import NotificationModel
+from app.models.sql_announcement import UnsubscribedModel
 from app.routers.v1.router_utils import paginate
 
 router = APIRouter()
