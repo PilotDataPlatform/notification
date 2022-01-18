@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
 from app.models.base_models import EAPIResponseCode
-from app.models.models_notification import POSTNotification, POSTNotificationResponse, GETNotification, GETNotifications, GETNotificationResponse, DELETENotification, DELETENotificationResponse
+from app.models.models_notification import POSTNotification, POSTNotificationResponse, GETNotification, GETNotifications, GETNotificationResponse, DELETENotification, DELETENotificationResponse, PUTNotification, PUTNotificationResponse
 from app.models.sql_announcement import NotificationModel
 from app.routers.v1.router_utils import paginate
 
@@ -12,6 +12,16 @@ routerBulk = APIRouter()
 
 @cbv(router)
 class APINotification:
+    @router.get('/', response_model=GETNotificationResponse, summary='Query one maintenance notification by ID')
+    async def get_notification(self, params: GETNotification = Depends(GETNotification)):
+        api_response = GETNotificationResponse()
+        notification = db.session.query(NotificationModel).filter_by(id=params.id)
+        api_response.page = 0
+        api_response.num_of_pages = 1
+        api_response.total = 1
+        api_response.result = notification.first().to_dict()
+        return api_response.json_response()
+    
     @router.post('/', response_model=POSTNotificationResponse, summary='Create new maintenance notification')
     async def create_notification(self, data: POSTNotification):
         api_response = POSTNotificationResponse()
@@ -31,22 +41,30 @@ class APINotification:
             db.session.add(notification)
             db.session.commit()
             db.session.refresh(notification)
+            api_response.result = notification.to_dict()
         except Exception as e:
             print(e)
             api_response.set_error_msg('Failed to write to database')
             api_response.set_code(EAPIResponseCode.bad_request)
-            return api_response.json_response()
-        api_response.result = notification.to_dict()
         return api_response.json_response()
     
-    @router.get('/', response_model=GETNotificationResponse, summary='Query one maintenance notification by ID')
-    async def get_notification(self, params: GETNotification = Depends(GETNotification)):
-        api_response = GETNotificationResponse()
-        notification = db.session.query(NotificationModel).filter_by(id=params.id)
-        api_response.page = 0
-        api_response.num_of_pages = 1
-        api_response.total = 1
-        api_response.result = notification.first().to_dict()
+    @router.put('/', response_model=PUTNotificationResponse, summary='Modify one maintenance notification by ID')
+    async def modify_notification(self, id: int, data: PUTNotification):
+        api_response = PUTNotificationResponse()
+        try:
+            notification = db.session.query(NotificationModel).filter_by(id=id).first()
+            notification.type = data.type
+            notification.message = data.message
+            notification.maintenance_date = data.detail.maintenance_date
+            notification.duration = data.detail.duration
+            notification.duration_unit = data.detail.duration_unit
+            db.session.commit()
+            db.session.refresh(notification)
+            api_response.result = notification.to_dict()
+        except Exception as e:
+            print(e)
+            api_response.set_error_msg('Failed to write to database')
+            api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
 
     @router.delete('/', response_model=DELETENotificationResponse, summary='Delete one maintenance notification by ID')
