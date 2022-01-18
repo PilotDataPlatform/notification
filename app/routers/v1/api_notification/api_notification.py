@@ -97,9 +97,14 @@ class APINotificationBulk:
     @routerBulk.get('/', response_model=GETNotificationResponse, summary='Query many maintenance notifications')
     async def get_all_notifications(self, params: GETNotifications = Depends(GETNotifications)):
         api_response = GETNotificationResponse()
-        if not params.all:
-            pass
         notifications = db.session.query(NotificationModel)
+        if not params.all:
+            username = 'erik'
+            unsubs = db.session.query(UnsubscribedModel).filter_by(username=username).all()
+            unsubNotificationIds = []
+            for unsub in unsubs:
+                unsubNotificationIds.append(unsub.notification_id)
+            notifications = notifications.filter(NotificationModel.id.not_in(unsubNotificationIds))
         paginate(params, api_response, notifications)
         return api_response.json_response()
 
