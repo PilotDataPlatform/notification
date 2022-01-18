@@ -69,3 +69,25 @@ class NotificationModel(Base):
                 'duration_unit': self.duration_unit
             }
         }
+
+
+class UnsubscribedModel(Base):
+    __tablename__ = 'unsubscribed_notification'
+    id = Column(Integer, unique=True, primary_key=True)
+    username = Column(String())
+    notification_id = Column(Integer())
+
+    __table_args__ = (
+        {"schema": ConfigClass.RDS_SCHEMA_DEFAULT},
+    )
+
+    def __init__(self, username, notification_id):
+        self.username = username
+        self.notification_id = notification_id
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'notification_id': self.notification_id
+        }

@@ -8,3 +8,4 @@ def api_registry(app: FastAPI):
     app.include_router(api_email.router, prefix="/v1/email", tags=["email"])
     app.include_router(api_notification.router, prefix="/v1/notification", tags=["notification"])
     app.include_router(api_notification.routerBulk, prefix="/v1/notifications", tags=["notification"])
+    app.include_router(api_notification.routerUnsub, prefix="/v1/unsubscribe", tags=["notification"])

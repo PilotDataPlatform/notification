@@ -3,11 +3,13 @@ from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
 from app.models.base_models import EAPIResponseCode
 from app.models.models_notification import POSTNotification, POSTNotificationResponse, GETNotification, GETNotifications, GETNotificationResponse, DELETENotification, DELETENotificationResponse, PUTNotification, PUTNotificationResponse
-from app.models.sql_announcement import NotificationModel
+from app.models.models_unsub import POSTUnsub, POSTUnsubResponse
+from app.models.sql_announcement import NotificationModel, UnsubscribedModel
 from app.routers.v1.router_utils import paginate
 
 router = APIRouter()
 routerBulk = APIRouter()
+routerUnsub = APIRouter()
 
 
 @cbv(router)
@@ -85,6 +87,30 @@ class APINotificationBulk:
     @routerBulk.get('/', response_model=GETNotificationResponse, summary='Query many maintenance notifications')
     async def get_all_notifications(self, params: GETNotifications = Depends(GETNotifications)):
         api_response = GETNotificationResponse()
+        if not params.all:
+            pass
         notifications = db.session.query(NotificationModel)
         paginate(params, api_response, notifications)
+        return api_response.json_response()
+
+
+@cbv(routerUnsub)
+class APINotificationUnsub:
+    @routerUnsub.post('/', response_model=POSTUnsubResponse, summary='Unsubscribe one user from one maintenance notification')
+    async def unsub_notification(self, data: POSTUnsub):
+        api_response = POSTUnsubResponse()
+        model_data = {
+            'username': data.username,
+            'notification_id': data.notification_id
+        }
+        unsub = UnsubscribedModel(**model_data)
+        try:
+            db.session.add(unsub)
+            db.session.commit()
+            db.session.refresh(unsub)
+            api_response.result = unsub.to_dict()
+        except Exception as e:
+            print(e)
+            api_response.set_error_msg('Failed to write to database')
+            api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
