@@ -61,3 +61,7 @@ class GETNotifications(BaseModel):
     all: bool = True
     page_size: int = 10
     page: int = 0
+
+
+class GETNotification(BaseModel):
+    id: int
