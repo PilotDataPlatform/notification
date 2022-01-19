@@ -80,7 +80,7 @@ class APINotification:
         return api_response.json_response()
 
     @router.delete('/', response_model=DELETENotificationResponse, summary='Delete one maintenance notification by ID')
-    async def get_notification(self, params: DELETENotification = Depends(DELETENotification)):
+    async def delete_notification(self, params: DELETENotification = Depends(DELETENotification)):
         api_response = DELETENotificationResponse()
         try:
             notification = db.session.query(NotificationModel).filter_by(id=params.id)
