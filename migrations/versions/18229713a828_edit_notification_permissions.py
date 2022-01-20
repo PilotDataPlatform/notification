@@ -26,6 +26,12 @@ def upgrade():
     op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('member', '*', 'notification', 'view', 'p')")
     op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('visitor', '*', 'notification', 'view', 'p')")
     op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('platform_admin', '*', 'email', 'create', 'p')")
+    op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('platform_admin', '*', 'unsubscribe', 'create', 'p')")
+    op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('admin', '*', 'unsubscribe', 'create', 'p')")
+    op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('contributor', '*', 'unsubscribe', 'create', 'p')")
+    op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('collaborator', '*', 'unsubscribe', 'create', 'p')")
+    op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('member', '*', 'unsubscribe', 'create', 'p')")
+    op.execute("INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('visitor', '*', 'unsubscribe', 'create', 'p')")
 
 def downgrade():
     op.execute("DELETE FROM public.casbin_rule WHERE v0='platform_admin' AND v1='*' AND v2='notification' AND v3='view'")
@@ -37,3 +43,9 @@ def downgrade():
     op.execute("DELETE FROM public.casbin_rule WHERE v0='member' AND v1='*' AND v2='notification' AND v3='view'")
     op.execute("DELETE FROM public.casbin_rule WHERE v0='visitor' AND v1='*' AND v2='notification' AND v3='view'")
     op.execute("DELETE FROM public.casbin_rule WHERE v0='platform_admin' AND v1='*' AND v2='notification' AND v3='create'")
+    op.execute("DELETE FROM public.casbin_rule WHERE v0='platform_admin' AND v1='*' AND v2='unsubscribe' AND v3='create'")
+    op.execute("DELETE FROM public.casbin_rule WHERE v0='admin' AND v1='*' AND v2='unsubscribe' AND v3='create'")
+    op.execute("DELETE FROM public.casbin_rule WHERE v0='contributor' AND v1='*' AND v2='unsubscribe' AND v3='create'")
+    op.execute("DELETE FROM public.casbin_rule WHERE v0='collaborator' AND v1='*' AND v2='unsubscribe' AND v3='create'")
+    op.execute("DELETE FROM public.casbin_rule WHERE v0='member' AND v1='*' AND v2='unsubscribe' AND v3='create'")
+    op.execute("DELETE FROM public.casbin_rule WHERE v0='visitor' AND v1='*' AND v2='unsubscribe' AND v3='create'")
