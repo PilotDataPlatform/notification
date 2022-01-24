@@ -13,8 +13,8 @@ from app.models.models_notification import PUTNotification
 from app.models.models_notification import PUTNotificationResponse
 from app.models.models_unsub import POSTUnsub
 from app.models.models_unsub import POSTUnsubResponse
-from app.models.sql_announcement import NotificationModel
-from app.models.sql_announcement import UnsubscribedModel
+from app.models.sql_notification import NotificationModel
+from app.models.sql_notification import UnsubscribedModel
 from app.routers.v1.router_utils import paginate
 
 router = APIRouter()

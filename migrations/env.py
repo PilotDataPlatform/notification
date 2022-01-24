@@ -1,16 +1,12 @@
 from logging.config import fileConfig
-
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from sqlalchemy.ext.declarative import declarative_base
-
 from alembic import context
 import os
 import sys
 base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(base_dir)
-from app.models.sql_announcement import Base 
-from app.models.sql_announcement import AnnouncementModel 
+from app.models.sql_announcement import Base
 
 
 # this is the Alembic Config object, which provides
