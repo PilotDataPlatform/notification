@@ -34,7 +34,6 @@ class TestNotification(unittest.TestCase):
         self.log.info(f"Response payload: {response.text}")
         global notificationId
         notificationId = loads(response.text)['result']['id']
-        self.log.info(f"ID: {notificationId}")
         self.assertEqual(response.status_code, 200)
 
     @pytest.mark.dependency(depends=['test_01'])

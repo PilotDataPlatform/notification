@@ -14,8 +14,9 @@ class GETNotificationResponse(APIResponse):
             'result': {
                     'type': 'maintenance',
                     'message': 'Notification response message',
+                    'created_date': '2022-01-01 12:00:00.000000',
                     'detail': {
-                        'maintenance_date': '2022-01-01',
+                        'maintenance_date': '2022-01-01 12:00:00.000000',
                         'duration': '3',
                         'duration_unit': 'h',
                 }
