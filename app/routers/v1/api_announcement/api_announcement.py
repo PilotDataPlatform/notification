@@ -12,6 +12,7 @@ from app.models.models_announcement import GETAnnouncementResponse
 from app.models.models_announcement import POSTAnnouncement
 from app.models.models_announcement import POSTAnnouncementResponse
 from app.models.sql_announcement import AnnouncementModel
+from app.routers.v1.router_utils import paginate
 
 router = APIRouter()
 
@@ -49,16 +50,7 @@ class APIAnnouncement:
                 AnnouncementModel.date >= params.start_date,
                 AnnouncementModel.date <= params.end_date
             )
-        total = announcements.count()
-        announcements = announcements.limit(params.page_size).offset(params.page * params.page_size)
-        announcements = announcements.all()
-        results = []
-        for announcement in announcements:
-            results.append(announcement.to_dict())
-        api_response.page = params.page
-        api_response.num_of_pages = int(int(total) / int(params.page_size))
-        api_response.total = total
-        api_response.result = results
+        paginate(params, api_response, announcements)
         return api_response.json_response()
 
     @router.post("/", response_model=POSTAnnouncementResponse, summary="Create new announcement")
