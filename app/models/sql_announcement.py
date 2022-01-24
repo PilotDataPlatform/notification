@@ -72,7 +72,7 @@ class NotificationModel(Base):
 
 
 class UnsubscribedModel(Base):
-    __tablename__ = 'unsubscribed_notification'
+    __tablename__ = 'unsubscribed_notifications'
     id = Column(Integer, unique=True, primary_key=True)
     username = Column(String())
     notification_id = Column(Integer())
