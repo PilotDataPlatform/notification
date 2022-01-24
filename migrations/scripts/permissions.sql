@@ -1,5 +1,3 @@
--- Add permissions to 'indoc_vre' DB for notification and unsubscribe
-
 INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('platform_admin', '*', 'notification', 'view', 'p');
 INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('platform_admin', '*', 'notification', 'create', 'p')
 INSERT INTO public.casbin_rule(v0, v1, v2, v3, ptype) VALUES('platform_admin', '*', 'notification', 'update', 'p');
