@@ -1,3 +1,4 @@
+import datetime
 from fastapi import APIRouter, Depends
 from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
@@ -13,8 +14,8 @@ from app.models.models_notification import PUTNotification
 from app.models.models_notification import PUTNotificationResponse
 from app.models.models_unsub import POSTUnsub
 from app.models.models_unsub import POSTUnsubResponse
-from app.models.sql_announcement import NotificationModel
-from app.models.sql_announcement import UnsubscribedModel
+from app.models.sql_notification import NotificationModel
+from app.models.sql_notification import UnsubscribedModel
 from app.routers.v1.router_utils import paginate
 
 router = APIRouter()
@@ -47,6 +48,7 @@ class APINotification:
             'maintenance_date': data.detail.maintenance_date,
             'duration': data.detail.duration,
             'duration_unit': data.detail.duration_unit,
+            'created_date': str(datetime.datetime.now())
         }
         notification = NotificationModel(**model_data)
         try:
@@ -67,6 +69,7 @@ class APINotification:
             notification = db.session.query(NotificationModel).filter_by(id=id).first()
             notification.type = data.type
             notification.message = data.message
+            notification.created_date = str(datetime.datetime.now())
             notification.maintenance_date = data.detail.maintenance_date
             notification.duration = data.detail.duration
             notification.duration_unit = data.detail.duration_unit
