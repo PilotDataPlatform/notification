@@ -16,7 +16,7 @@ class NotificationModel(Base):
     created_date = Column(DateTime())
 
     __table_args__ = (
-        {"schema": ConfigClass.RDS_SCHEMA_DEFAULT},
+        {"schema": ConfigClass.NOTIFICATIONS_SCHEMA},
     )
 
     def __init__(self, type, message, maintenance_date, duration, duration_unit, created_date):
@@ -48,7 +48,7 @@ class UnsubscribedModel(Base):
     notification_id = Column(Integer())
 
     __table_args__ = (
-        {"schema": ConfigClass.RDS_SCHEMA_DEFAULT},
+        {"schema": ConfigClass.NOTIFICATIONS_SCHEMA},
     )
 
     def __init__(self, username, notification_id):

@@ -17,7 +17,8 @@ services:
       RDS_DBNAME: notification
       RDS_USER: postgres
       RDS_PWD: password
-      RDS_SCHEMA_DEFAULT: test
+      NOTIFICATIONS_SCHEMA: notifications
+      ANNOUNCEMENTS_SCHEMA: announcements
     depends_on: 
       - mailhog
   mailhog:

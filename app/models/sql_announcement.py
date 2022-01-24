@@ -17,7 +17,7 @@ class AnnouncementModel(Base):
 
     __table_args__ = (
         UniqueConstraint('project_code', 'version', name='project_code_version'),
-        {"schema": 'announcements'},
+        {"schema": ConfigClass.ANNOUNCEMENTS_SCHEMA},
     )
 
     def __init__(self, project_code, content, version, publisher):

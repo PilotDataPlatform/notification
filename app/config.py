@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     RDS_PWD: str
     NOTIFICATIONS_DBNAME: str = 'notifications'
     NOTIFICATIONS_SCHEMA: str = 'notifications'
+    ANNOUNCEMENTS_SCHEMA: str = 'announcements'
 
 
     class Config:
@@ -114,5 +115,6 @@ class ConfigClass(object):
     RDS_DBNAME = settings.NOTIFICATIONS_DBNAME
     RDS_USER = settings.RDS_USER
     RDS_PWD = settings.RDS_PWD
-    RDS_SCHEMA_DEFAULT = settings.NOTIFICATIONS_SCHEMA
+    NOTIFICATIONS_SCHEMA = settings.NOTIFICATIONS_SCHEMA
+    ANNOUNCEMENTS_SCHEMA = settings.ANNOUNCEMENTS_SCHEMA
     SQLALCHEMY_DATABASE_URI = f"postgresql://{RDS_USER}:{RDS_PWD}@{RDS_HOST}/{RDS_DBNAME}"
