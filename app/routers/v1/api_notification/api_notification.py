@@ -27,12 +27,17 @@ routerUnsub = APIRouter()
 class APINotification:
     @router.get('/', response_model=GETNotificationResponse, summary='Query one maintenance notification by ID')
     async def get_notification(self, params: GETNotification = Depends(GETNotification)):
-        api_response = GETNotificationResponse()
-        notification = db.session.query(NotificationModel).filter_by(id=params.id)
-        api_response.page = 0
-        api_response.num_of_pages = 1
-        api_response.total = 1
-        api_response.result = notification.first().to_dict()
+        try:
+            api_response = GETNotificationResponse()
+            notification = db.session.query(NotificationModel).filter_by(id=params.id)
+            api_response.page = 0
+            api_response.num_of_pages = 1
+            api_response.total = 1
+            api_response.result = notification.first().to_dict()
+        except Exception as e:
+            print(e)
+            api_response.set_error_msg(f'Could not get notification with id={params.id}')
+            api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
     
     @router.post('/', response_model=POSTNotificationResponse, summary='Create new maintenance notification')
@@ -100,7 +105,7 @@ class APINotificationBulk:
     @routerBulk.get('/', response_model=GETNotificationResponse, summary='Query many maintenance notifications')
     async def get_all_notifications(self, params: GETNotifications = Depends(GETNotifications)):
         api_response = GETNotificationResponse()
-        notifications = db.session.query(NotificationModel)
+        notifications = db.session.query(NotificationModel).order_by(NotificationModel.created_date.desc())
         if not params.all:
             if not params.username:
                 api_response.error_msg = "Username must be provided if all is false"
