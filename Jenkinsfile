@@ -4,7 +4,7 @@ pipeline {
       imagename_dev = "registry-gitlab.indocresearch.org/platform/service_notification"
       imagename_staging = "registry-gitlab.indocresearch.org/platform/service_notification"
       commit = sh(returnStdout: true, script: 'git describe --always').trim()
-      registryCredential = 'gitlab-registry'
+      registryCredential = 'platform-gitlab-registry'
       dockerImage = ''
     }
 
