@@ -1,6 +1,6 @@
 FROM python:3.7-buster
 WORKDIR /usr/src/app
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN PIP_USERNAME=$pip_username PIP_PASSWORD=$pip_password pip install --no-cache-dir -r requirements.txt && chmod +x gunicorn_starter.sh
 COPY . .
 CMD ["./gunicorn_starter.sh"]
