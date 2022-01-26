@@ -1,5 +1,5 @@
 --index-url https://${PIP_USERNAME}:${PIP_PASSWORD}@git.indocresearch.org/api/v4/projects/158/packages/pypi/simple
-common
+common==0.0.13
 
 fastapi==0.62.0
 fastapi-utils==0.2.1

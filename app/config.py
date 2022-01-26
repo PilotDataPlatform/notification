@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     version = "1.1.0"
     api_modules = API_MODULES
     SQLALCHEMY_DATABASE_URI = f"postgresql://{RDS_USER}:{RDS_PWD}@{RDS_HOST}/{NOTIFICATIONS_DBNAME}"
+    
+    def update_db_uri(self):
+        self.SQLALCHEMY_DATABASE_URI = f"postgresql://{self.RDS_USER}:{self.RDS_PWD}@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}"
 
 
     class Config:
@@ -72,6 +75,7 @@ class Settings(BaseSettings):
 @lru_cache(1)
 def get_settings():
     settings = Settings()
+    settings.update_db_uri()
     return settings
 
 ConfigClass = get_settings()
