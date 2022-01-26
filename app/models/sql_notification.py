@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from app.config import ConfigClass
@@ -32,9 +33,9 @@ class NotificationModel(Base):
             'id': self.id,
             'type': self.type,
             'message': self.message,
-            'created_date': str(self.created_date),
+            'created_date': self.created_date.strftime("%Y-%m-%dT%H:%M:%S"),
             'detail': {
-                'maintenance_date': str(self.maintenance_date),
+                'maintenance_date': self.maintenance_date.strftime("%Y-%m-%dT%H:%M:%S"),
                 'duration': self.duration,
                 'duration_unit': self.duration_unit
             }
