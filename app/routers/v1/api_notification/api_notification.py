@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
 from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
@@ -53,7 +53,7 @@ class APINotification:
             'maintenance_date': data.detail.maintenance_date,
             'duration': data.detail.duration,
             'duration_unit': data.detail.duration_unit,
-            'created_date': str(datetime.datetime.now())
+            'created_date': str(datetime.now(timezone.utc))
         }
         notification = NotificationModel(**model_data)
         try:
@@ -74,7 +74,7 @@ class APINotification:
             notification = db.session.query(NotificationModel).filter_by(id=id).first()
             notification.type = data.type
             notification.message = data.message
-            notification.created_date = str(datetime.datetime.now())
+            notification.created_date = str(datetime.now(timezone.utc))
             notification.maintenance_date = data.detail.maintenance_date
             notification.duration = data.detail.duration
             notification.duration_unit = data.detail.duration_unit
