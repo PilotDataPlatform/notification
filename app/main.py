@@ -51,6 +51,6 @@ def instrument_app(app) -> None:
     RequestsInstrumentor().instrument()
 
 
-if ConfigClass.opentelemetry_enabled:
+if ConfigClass.OPEN_TELEMETRY_ENABLED:
     print("Opentelemetry activated")
     instrument_app(app)
