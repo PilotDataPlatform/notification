@@ -1,27 +1,21 @@
 import os
-import requests
-from requests.models import HTTPError
+from common import VaultClient
 from pydantic import BaseSettings, Extra
 from typing import Dict, Set, List, Any
 from functools import lru_cache
 
 SRV_NAMESPACE = os.environ.get("APP_NAME", "service_notification")
 CONFIG_CENTER_ENABLED = os.environ.get("CONFIG_CENTER_ENABLED", "false")
-CONFIG_CENTER_BASE_URL = os.environ.get("CONFIG_CENTER_BASE_URL", "NOT_SET")
 
 def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
     if CONFIG_CENTER_ENABLED == "false":
         return {}
     else:
-        return vault_factory(CONFIG_CENTER_BASE_URL)
+        return vault_factory()
 
-def vault_factory(config_center) -> dict:
-    url = config_center + \
-        "/v1/utility/config/{}".format(SRV_NAMESPACE)
-    config_center_respon = requests.get(url)
-    if config_center_respon.status_code != 200:
-        raise HTTPError(config_center_respon.text)
-    return config_center_respon.json()['result']
+def vault_factory() -> dict:
+    vc = VaultClient(os.environ.get('VAULT_URL'), os.environ.get('VAULT_CRT'), os.environ.get('VAULT_TOKEN'))
+    return vc.get_from_vault(SRV_NAMESPACE)
 
 
 class Settings(BaseSettings):
