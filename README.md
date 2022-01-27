@@ -8,11 +8,11 @@ Manages emails and system maintenance notifications.
 ## Getting Started
 
 ### Prerequisites
-- Dependencies as defined in `requirements.txt`.
+- Dependencies as defined in `requirements.txt` and `internal_requirements.txt`.
 - Vault connection credentials or custom-set environment variables.
 
 ### Installation
-1. Install dependencies from `requirements.txt`. Token username and password are required for internal packages.
+1. Install dependencies from `requirements.txt` and `internal_requirements.txt`. Token username and password are required for internal packages.
 2. Supply environment variables.
 3. Run application from `run.py`.
 4. Find service locally at `http://localhost:5065/`.
