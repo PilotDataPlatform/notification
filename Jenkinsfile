@@ -49,7 +49,7 @@ pipeline {
 
     stage('DEV Build and push image') {
       when {branch "k8s-dev"}
-      steps{
+      steps {
         script {
           withCredentials([usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD')]) {        
             docker.withRegistry('https://registry-gitlab.indocresearch.org', registryCredential) {
@@ -60,6 +60,7 @@ pipeline {
         }
       }
     }
+
     stage('DEV Remove image') {
       when {branch "k8s-dev"}
       steps{
@@ -91,7 +92,7 @@ pipeline {
 
     stage('STAGING Building and push image') {
       when {branch "k8s-staging"}
-      steps{
+      steps {
         script {
             withCredentials([usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD')]) {        
               docker.withRegistry('https://registry-gitlab.indocresearch.org', registryCredential) {
@@ -99,6 +100,7 @@ pipeline {
                   customImage.push()
               }
             }
+          }
         }
       }
     }
