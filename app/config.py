@@ -1,11 +1,12 @@
-import os
 from common import VaultClient
 from pydantic import BaseSettings, Extra
 from typing import Dict, Set, List, Any
 from functools import lru_cache
+from starlette.config import Config
 
-SRV_NAMESPACE = os.environ.get("APP_NAME", "service_notification")
-CONFIG_CENTER_ENABLED = os.environ.get("CONFIG_CENTER_ENABLED", "false")
+config = Config('.env')
+SRV_NAMESPACE = config("APP_NAME", cast=str, default="service_notification")
+CONFIG_CENTER_ENABLED = config("CONFIG_CENTER_ENABLED", cast=str, default="false")
 
 def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
     if CONFIG_CENTER_ENABLED == "false":
@@ -14,7 +15,7 @@ def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
         return vault_factory()
 
 def vault_factory() -> dict:
-    vc = VaultClient(os.environ.get('VAULT_URL'), os.environ.get('VAULT_CRT'), os.environ.get('VAULT_TOKEN'))
+    vc = VaultClient(config('VAULT_URL'), config('VAULT_CRT'), config('VAULT_TOKEN'))
     return vc.get_from_vault(SRV_NAMESPACE)
 
 
@@ -38,15 +39,16 @@ class Settings(BaseSettings):
     POSTFIX_PORT: str
     ALLOWED_EXTENSIONS: Set = set(['pdf', 'png', 'jpg', 'jpeg', 'gif'])
     IMAGE_EXTENSIONS: Set = set(['png', 'jpg', 'jpeg', 'gif'])
-    RDS_HOST: str = ''
-    RDS_PORT: str = ''
-    RDS_USER: str = ''
-    RDS_PWD: str = ''
+    RDS_HOST: str
+    RDS_PORT: str
+    RDS_USER: str
+    RDS_PWD: str
     NOTIFICATIONS_DBNAME: str = 'notifications'
     NOTIFICATIONS_SCHEMA: str = 'notifications'
     ANNOUNCEMENTS_SCHEMA: str = 'announcements'
     version = "1.1.0"
     api_modules = API_MODULES
+    EMAIL_SENDER: str = "notification@indocresearch.org"
     
     def __init__(self):
         super().__init__()
