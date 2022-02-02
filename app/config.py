@@ -1,27 +1,22 @@
-import os
-import requests
-from requests.models import HTTPError
+from common import VaultClient
 from pydantic import BaseSettings, Extra
 from typing import Dict, Set, List, Any
 from functools import lru_cache
+from starlette.config import Config
 
-SRV_NAMESPACE = os.environ.get("APP_NAME", "service_notification")
-CONFIG_CENTER_ENABLED = os.environ.get("CONFIG_CENTER_ENABLED", "false")
-CONFIG_CENTER_BASE_URL = os.environ.get("CONFIG_CENTER_BASE_URL", "NOT_SET")
+config = Config('.env')
+SRV_NAMESPACE = config("APP_NAME", cast=str, default="service_notification")
+CONFIG_CENTER_ENABLED = config("CONFIG_CENTER_ENABLED", cast=str, default="false")
 
 def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
     if CONFIG_CENTER_ENABLED == "false":
         return {}
     else:
-        return vault_factory(CONFIG_CENTER_BASE_URL)
+        return vault_factory()
 
-def vault_factory(config_center) -> dict:
-    url = config_center + \
-        "/v1/utility/config/{}".format(SRV_NAMESPACE)
-    config_center_respon = requests.get(url)
-    if config_center_respon.status_code != 200:
-        raise HTTPError(config_center_respon.text)
-    return config_center_respon.json()['result']
+def vault_factory() -> dict:
+    vc = VaultClient(config('VAULT_URL'), config('VAULT_CRT'), config('VAULT_TOKEN'))
+    return vc.get_from_vault(SRV_NAMESPACE)
 
 
 class Settings(BaseSettings):
@@ -30,32 +25,34 @@ class Settings(BaseSettings):
     namespace: str = ""
     env: str = "test"
     OPEN_TELEMETRY_ENABLED: str
-
     NFS_ROOT_PATH = "./"
     VRE_ROOT_PATH = "/vre-data"
     ROOT_PATH = {
         "vre": "/vre-data"
     }.get(SRV_NAMESPACE, "/data/vre-storage")
-
-    # the packaged modules
     API_MODULES: List = ["service_email"]
     postfix: str = ""
     smtp_user: str = ""
     smtp_pass: str = ""
     smtp_port: str = ""
-
     POSTFIX_URL: str
     POSTFIX_PORT: str
-
     ALLOWED_EXTENSIONS: Set = set(['pdf', 'png', 'jpg', 'jpeg', 'gif'])
     IMAGE_EXTENSIONS: Set = set(['png', 'jpg', 'jpeg', 'gif'])
-
     RDS_HOST: str
     RDS_PORT: str
-    RDS_DBNAME: str = ""
     RDS_USER: str
     RDS_PWD: str
-    RDS_SCHEMA_DEFAULT:str 
+    NOTIFICATIONS_DBNAME: str = 'notifications'
+    NOTIFICATIONS_SCHEMA: str = 'notifications'
+    ANNOUNCEMENTS_SCHEMA: str = 'announcements'
+    version = "1.1.0"
+    api_modules = API_MODULES
+    EMAIL_SENDER: str = "notification@indocresearch.org"
+    
+    def __init__(self):
+        super().__init__()
+        self.SQLALCHEMY_DATABASE_URI = f"postgresql://{self.RDS_USER}:{self.RDS_PWD}@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}"
 
 
     class Config:
@@ -79,42 +76,7 @@ class Settings(BaseSettings):
 
 @lru_cache(1)
 def get_settings():
-    settings =  Settings()
+    settings = Settings()
     return settings
 
-class ConfigClass(object):
-    settings = get_settings()
-
-    version = "1.1.0"
-    env = settings.env
-    disk_namespace = settings.namespace
-    opentelemetry_enabled = settings.OPEN_TELEMETRY_ENABLED == "TRUE"
-
-    # disk mounts
-    NFS_ROOT_PATH = settings.NFS_ROOT_PATH
-    VRE_ROOT_PATH = settings.VRE_ROOT_PATH
-    ROOT_PATH = settings.ROOT_PATH
-
-    # the packaged modules
-    api_modules = settings.API_MODULES
-    postfix = settings.postfix
-    smtp_user = settings.smtp_user
-    smtp_pass = settings.smtp_pass
-    smtp_port = settings.smtp_port
-
-    POSTFIX_URL = settings.POSTFIX_URL
-    POSTFIX_PORT = settings.POSTFIX_PORT
-
-    ALLOWED_EXTENSIONS = set(['pdf', 'png', 'jpg', 'jpeg', 'gif'])
-    IMAGE_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
-
-
-    RDS_HOST = settings.RDS_HOST
-    RDS_PORT = settings.RDS_PORT
-    RDS_DBNAME = settings.RDS_DBNAME
-    RDS_USER = settings.RDS_USER
-    RDS_PWD = settings.RDS_PWD
-    RDS_SCHEMA_DEFAULT = settings.RDS_SCHEMA_DEFAULT
-    SQLALCHEMY_DATABASE_URI = f"postgresql://{RDS_USER}:{RDS_PWD}@{RDS_HOST}/{RDS_DBNAME}"
-
-
+ConfigClass = get_settings()

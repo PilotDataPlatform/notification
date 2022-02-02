@@ -1,5 +1,4 @@
-from fastapi_sqlalchemy import db 
-from sqlalchemy import Column, String, Date, DateTime, Integer, Column, UniqueConstraint
+from sqlalchemy import Column, String, DateTime, Integer, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from app.config import ConfigClass
@@ -18,7 +17,7 @@ class AnnouncementModel(Base):
 
     __table_args__ = (
         UniqueConstraint('project_code', 'version', name='project_code_version'),
-        {"schema": ConfigClass.RDS_SCHEMA_DEFAULT},
+        {"schema": ConfigClass.ANNOUNCEMENTS_SCHEMA},
     )
 
     def __init__(self, project_code, content, version, publisher):
