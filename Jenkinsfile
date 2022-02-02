@@ -99,8 +99,7 @@ pipeline {
                   customImage = docker.build("registry-gitlab.indocresearch.org/platform/service_notification:$commit", "--build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} --add-host git.indocresearch.org:10.4.3.151 .")
                   customImage.push()
               }
-            }
-          }
+            }          
         }
       }
     }
