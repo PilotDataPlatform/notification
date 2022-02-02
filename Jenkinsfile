@@ -25,9 +25,9 @@ pipeline {
 
     stage('DEV unit test') {
       when {branch "k8s-dev"}
-      steps {
+      steps{
          withCredentials([
-            usernamePassword(credentialsId: 'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD'),
+            usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD'),
             string(credentialsId:'VAULT_TOKEN', variable: 'VAULT_TOKEN'),
             string(credentialsId:'VAULT_URL', variable: 'VAULT_URL'),
             file(credentialsId:'VAULT_CRT', variable: 'VAULT_CRT')
