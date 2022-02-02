@@ -25,9 +25,9 @@ pipeline {
 
     stage('DEV unit test') {
       when {branch "k8s-dev"}
-      steps {
+      steps{
          withCredentials([
-            usernamePassword(credentialsId: 'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD'),
+            usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD'),
             string(credentialsId:'VAULT_TOKEN', variable: 'VAULT_TOKEN'),
             string(credentialsId:'VAULT_URL', variable: 'VAULT_URL'),
             file(credentialsId:'VAULT_CRT', variable: 'VAULT_CRT')
@@ -40,8 +40,7 @@ pipeline {
             pip3 install virtualenv
             /home/indoc/.local/bin/virtualenv -p python3 venv
             . venv/bin/activate
-            pip3 install -r requirements.txt -r tests/test_requirements.txt
-            PIP_USERNAME=${PIP_USERNAME} PIP_PASSWORD=${PIP_PASSWORD} pip3 -r internal_requirements.txt
+            PIP_USERNAME=${PIP_USERNAME} PIP_PASSWORD=${PIP_PASSWORD} pip3 install -r requirements.txt -r tests/test_requirements.txt -r internal_requirements.txt
             pytest -c tests/pytest.ini
             """
           }
