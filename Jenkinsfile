@@ -40,7 +40,8 @@ pipeline {
             pip3 install virtualenv
             /home/indoc/.local/bin/virtualenv -p python3 venv
             . venv/bin/activate
-            PIP_USERNAME=${PIP_USERNAME} PIP_PASSWORD=${PIP_PASSWORD} pip3 install -r requirements.txt -r tests/test_requirements.txt -r internal_requirements.txt
+            pip3 install -r requirements.txt -r tests/test_requirements.txt
+            PIP_USERNAME=${PIP_USERNAME} PIP_PASSWORD=${PIP_PASSWORD} pip3 -r internal_requirements.txt
             pytest -c tests/pytest.ini
             """
           }
