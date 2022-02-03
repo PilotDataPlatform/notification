@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_sqlalchemy import DBSessionMiddleware
-from .config import ConfigClass, SRV_NAMESPACE
+from .config import ConfigClass
 from .api_registry import api_registry
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -38,7 +38,7 @@ api_registry(app)
 def instrument_app(app) -> None:
     """Instrument the application with OpenTelemetry tracing."""
 
-    tracer_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: SRV_NAMESPACE}))
+    tracer_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: ConfigClass.APP_NAME}))
     trace.set_tracer_provider(tracer_provider)
 
     jaeger_exporter = JaegerExporter(

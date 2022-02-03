@@ -1,12 +1,18 @@
-from common import VaultClient
-from pydantic import BaseSettings, Extra
-from typing import Dict, Set, List, Any
 from functools import lru_cache
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Set
+
+from common import VaultClient
+from pydantic import BaseSettings
+from pydantic import Extra
 from starlette.config import Config
 
 config = Config('.env')
 SRV_NAMESPACE = config("APP_NAME", cast=str, default="service_notification")
 CONFIG_CENTER_ENABLED = config("CONFIG_CENTER_ENABLED", cast=str, default="false")
+
 
 def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
     if CONFIG_CENTER_ENABLED == "false":
@@ -14,17 +20,21 @@ def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
     else:
         return vault_factory()
 
+
 def vault_factory() -> dict:
     vc = VaultClient(config('VAULT_URL'), config('VAULT_CRT'), config('VAULT_TOKEN'))
     return vc.get_from_vault(SRV_NAMESPACE)
 
 
 class Settings(BaseSettings):
+    """Store service configuration settings."""
+
+    APP_NAME: str = 'service_notification'
     port: int = 5065
     host: str = "0.0.0.0"
     namespace: str = ""
     env: str = "test"
-    OPEN_TELEMETRY_ENABLED: str
+    OPEN_TELEMETRY_ENABLED: bool = False
     NFS_ROOT_PATH = "./"
     VRE_ROOT_PATH = "/vre-data"
     ROOT_PATH = {
@@ -37,8 +47,8 @@ class Settings(BaseSettings):
     smtp_port: str = ""
     POSTFIX_URL: str
     POSTFIX_PORT: str
-    ALLOWED_EXTENSIONS: Set = set(['pdf', 'png', 'jpg', 'jpeg', 'gif'])
-    IMAGE_EXTENSIONS: Set = set(['png', 'jpg', 'jpeg', 'gif'])
+    ALLOWED_EXTENSIONS: Set[str] = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+    IMAGE_EXTENSIONS: Set[str] = {'png', 'jpg', 'jpeg', 'gif'}
     RDS_HOST: str
     RDS_PORT: str
     RDS_USER: str
@@ -49,11 +59,10 @@ class Settings(BaseSettings):
     version = "1.1.0"
     api_modules = API_MODULES
     EMAIL_SENDER: str = "notification@indocresearch.org"
-    
+
     def __init__(self):
         super().__init__()
         self.SQLALCHEMY_DATABASE_URI = f"postgresql://{self.RDS_USER}:{self.RDS_PWD}@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}"
-
 
     class Config:
         env_file = '.env'
@@ -61,22 +70,14 @@ class Settings(BaseSettings):
         extra = Extra.allow
 
         @classmethod
-        def customise_sources(
-            cls,
-            init_settings,
-            env_settings,
-            file_secret_settings,
-        ):
-            return (
-                load_vault_settings,
-                env_settings,
-                init_settings,
-                file_secret_settings,
-            )
+        def customise_sources(cls, init_settings, env_settings, file_secret_settings):
+            return load_vault_settings, env_settings, init_settings, file_secret_settings
+
 
 @lru_cache(1)
 def get_settings():
     settings = Settings()
     return settings
+
 
 ConfigClass = get_settings()
