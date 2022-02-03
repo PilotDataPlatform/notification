@@ -69,16 +69,12 @@ pipeline {
       }
     }
 
-    stage('Git clone staging') {
-        when {branch "k8s-staging"}
-        steps{
-          script {
-          git branch: "k8s-staging",
-              url: 'https://git.indocresearch.org/platform/service_notification.git',
-              credentialsId: 'lzhao'
-            sh 'printenv'
-            sh 'git submodule update --recursive --init --remote'
-            }
+    stage('STAGING: Git clone') {
+        when { branch 'k8s-staging' }
+        steps {
+            git branch: 'k8s-staging',
+                url: 'https://git.indocresearch.org/platform/service_notification.git',
+                credentialsId: 'lzhao'
         }
     }
 
