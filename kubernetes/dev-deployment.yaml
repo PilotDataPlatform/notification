@@ -28,21 +28,19 @@ spec:
           ports:
             - containerPort: 5065
           env:
-          - name: env
-            value: "dev"
-          - name: CONFIG_CENTER_ENABLED
-            value: "true"
-          - name: CONFIG_CENTER_BASE_URL
-            value: "http://common.utility:5062/"
-          - name: VAULT_URL
-            value: "https://vault.vault:8200/v1/vre/app/config"
-          - name: VAULT_CRT
-            value: "/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-          - name: VAULT_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: vault-secret
-                key: token
+            - name: env
+              value: "dev"
+            - name: CONFIG_CENTER_ENABLED
+              value: "true"
+            - name: VAULT_URL
+              value: "https://vault.vault:8200/v1/vre/app/config"
+            - name: VAULT_CRT
+              value: "/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-secret
+                  key: token
       nodeSelector:
         namespace: utility
 ---
@@ -55,9 +53,9 @@ metadata:
     app: notification
 spec:
   ports:
-  - name: notification
-    port: 5065
-    targetPort: 5065
+    - name: notification
+      port: 5065
+      targetPort: 5065
   selector:
     app: notification
   type: LoadBalancer

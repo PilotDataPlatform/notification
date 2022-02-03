@@ -1,5 +1,4 @@
 import base64
-import os
 import smtplib
 from email.header import Header
 from email.mime.application import MIMEApplication
@@ -13,19 +12,19 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi_utils import cbv
+from logger import LoggerFactory
 
 from app.config import ConfigClass
 from app.models.base_models import APIResponse
 from app.models.base_models import EAPIResponseCode
 from app.models.models_email import POSTEmail
 from app.models.models_email import POSTEmailResponse
-from services.service_logger.logger_factory_service import SrvLoggerFactory
 
 from .utils import allowed_file
 from .utils import is_image
 
 router = APIRouter()
-_logger = SrvLoggerFactory('api_emails').get_logger()
+_logger = LoggerFactory('api_emails').get_logger()
 
 
 def send_emails(receivers, sender, subject, text, msg_type, attachments) -> JSONResponse:
