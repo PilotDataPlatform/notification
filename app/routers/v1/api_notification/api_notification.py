@@ -47,6 +47,10 @@ class APINotification:
             api_response.set_error_msg('Message too long')
             api_response.set_code(EAPIResponseCode.bad_request)
             return api_response.json_response()
+        if int(data.detail.duration) <= 0:
+            api_response.set_error_msg('Duration less than or equal to zero')
+            api_response.set_code(EAPIResponseCode.bad_request)
+            return api_response.json_response()
         model_data = {
             'type': data.type,
             'message': data.message,
@@ -70,6 +74,14 @@ class APINotification:
     @router.put('/', response_model=PUTNotificationResponse, summary='Modify one maintenance notification by ID')
     async def modify_notification(self, id: int, data: PUTNotification):
         api_response = PUTNotificationResponse()
+        if len(data.message) > 250:
+            api_response.set_error_msg('Message too long')
+            api_response.set_code(EAPIResponseCode.bad_request)
+            return api_response.json_response()
+        if int(data.detail.duration) <= 0:
+            api_response.set_error_msg('Duration less than or equal to zero')
+            api_response.set_code(EAPIResponseCode.bad_request)
+            return api_response.json_response()
         try:
             notification = db.session.query(NotificationModel).filter_by(id=id).first()
             notification.type = data.type
