@@ -10,41 +10,33 @@ pipeline {
 
     stages {
 
-    stage('Git clone for dev') {
-        when {branch "k8s-dev"}
-        steps{
-          script {
-              git branch: "k8s-dev",
-                  url: 'https://git.indocresearch.org/platform/service_notification.git',
-                  credentialsId: 'lzhao'
-              sh 'printenv'
-              sh 'git submodule update --recursive --init --remote'
-            }
+    stage('DEV: Git clone') {
+        when { branch 'k8s-dev' }
+        steps {
+            git branch: 'k8s-dev',
+                url: 'https://git.indocresearch.org/platform/service_notification.git',
+                credentialsId: 'lzhao'
         }
     }
 
-    stage('DEV unit test') {
-      when {branch "k8s-dev"}
-      steps{
-         withCredentials([
-            usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD'),
-            string(credentialsId:'VAULT_TOKEN', variable: 'VAULT_TOKEN'),
-            string(credentialsId:'VAULT_URL', variable: 'VAULT_URL'),
-            file(credentialsId:'VAULT_CRT', variable: 'VAULT_CRT')
-          ]) {      
-            sh """
-            export CONFIG_CENTER_ENABLED='true'
-            export VAULT_TOKEN=${VAULT_TOKEN}
-            export VAULT_URL=${VAULT_URL}
-            export VAULT_CRT=${VAULT_CRT}        
-            pip3 install virtualenv
-            /home/indoc/.local/bin/virtualenv -p python3 venv
-            . venv/bin/activate
-            PIP_USERNAME=${PIP_USERNAME} PIP_PASSWORD=${PIP_PASSWORD} pip3 install -r requirements.txt -r tests/test_requirements.txt -r internal_requirements.txt
-            pytest -c tests/pytest.ini
-            """
-          }
-      }
+    stage('DEV: Run unit tests') {
+        when { branch 'k8s-dev' }
+        steps {
+            withCredentials([
+                usernamePassword(credentialsId: 'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD'),
+                string(credentialsId:'VAULT_TOKEN', variable: 'VAULT_TOKEN'),
+                string(credentialsId:'VAULT_URL', variable: 'VAULT_URL'),
+                file(credentialsId:'VAULT_CRT', variable: 'VAULT_CRT')
+            ]) {
+                sh """
+                pip install --user poetry==1.1.12
+                ${HOME}/.local/bin/poetry config virtualenvs.in-project true
+                ${HOME}/.local/bin/poetry config http-basic.charite ${PIP_USERNAME} ${PIP_PASSWORD}
+                ${HOME}/.local/bin/poetry install --no-root --no-interaction
+                ${HOME}/.local/bin/poetry run pytest --verbose -c tests/pytest.ini
+                """
+            }
+        }
     }
 
     stage('DEV Build and push image') {
@@ -77,16 +69,12 @@ pipeline {
       }
     }
 
-    stage('Git clone staging') {
-        when {branch "k8s-staging"}
-        steps{
-          script {
-          git branch: "k8s-staging",
-              url: 'https://git.indocresearch.org/platform/service_notification.git',
-              credentialsId: 'lzhao'
-            sh 'printenv'
-            sh 'git submodule update --recursive --init --remote'
-            }
+    stage('STAGING: Git clone') {
+        when { branch 'k8s-staging' }
+        steps {
+            git branch: 'k8s-staging',
+                url: 'https://git.indocresearch.org/platform/service_notification.git',
+                credentialsId: 'lzhao'
         }
     }
 
