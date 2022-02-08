@@ -31,8 +31,8 @@ class TestWriteEmails(unittest.TestCase):
 
     @patch('smtplib.SMTP')
     def test_post_correct(self, mock_smtp):
-        payload = {"sender": ConfigClass.EMAIL_SENDER,
-                   "receiver": ["jzhang@indocresearch.org"],
+        payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                    "message": "test email"}
         self.log.info('\n')
         self.log.info('test post with correct payload'.center(80, '-'))
@@ -51,7 +51,7 @@ class TestWriteEmails(unittest.TestCase):
     def test_post_no_sender(self, mock_smtp):
         payload = {
             "sender": None,
-            "receiver": "jzhang@indocresearch.org",
+            "receiver": ConfigClass.TEST_EMAIL_RECEIVER,
             "message": "test email"
         }
         self.log.info('\n')
@@ -74,7 +74,7 @@ class TestWriteEmails(unittest.TestCase):
     @patch('smtplib.SMTP')
     def test_post_no_receiver(self, mock_smtp):
         payload = {
-            "sender": ConfigClass.EMAIL_SENDER,
+            "sender": ConfigClass.TEST_EMAIL_SENDER,
             "receiver": None,
             "message": "test email"
         }
@@ -98,8 +98,8 @@ class TestWriteEmails(unittest.TestCase):
     @patch('smtplib.SMTP')
     def test_post_no_message(self, mock_smtp):
         payload = {
-            "sender": ConfigClass.EMAIL_SENDER,
-            "receiver": ["jzhang@indocresearch.org"],
+            "sender": ConfigClass.TEST_EMAIL_SENDER,
+            "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
         }
         self.log.info('\n')
         self.log.info('test post without message in payload'.center(80, '-'))
@@ -126,8 +126,8 @@ class TestWriteEmails(unittest.TestCase):
                         <h4>Dear member,</h4>\
                         </body>\
             </html>'''
-        payload = {"sender": ConfigClass.EMAIL_SENDER,
-                   "receiver": ["jzhang@indocresearch.org"],
+        payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                    "message": html_msg,
                    "msg_type": "html"}
         self.log.info('\n')
@@ -145,8 +145,8 @@ class TestWriteEmails(unittest.TestCase):
 
     @patch('smtplib.SMTP')
     def test_wrong_message(self, mock_smtp):
-        payload = {"sender": ConfigClass.EMAIL_SENDER,
-                   "receiver": ["jzhang@indocresearch.org"],
+        payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                    "message": "test message",
                    "msg_type": "csv"}
         self.log.info('\n')
@@ -168,8 +168,8 @@ class TestWriteEmails(unittest.TestCase):
 
     @patch('smtplib.SMTP')
     def test_multiple_receiver_list(self, mock_smtp):
-        payload = {"sender": ConfigClass.EMAIL_SENDER,
-                   "receiver": ["jzhang@indocresearch.org", "jiayu@indocresearch.org"],
+        payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER, "jiayu@indocresearch.org"],
                    "message": "test email"}
         self.log.info('\n')
         self.log.info('test post with a list of receivers in payload'.center(80, '-'))
@@ -186,8 +186,8 @@ class TestWriteEmails(unittest.TestCase):
 
     @patch('smtplib.SMTP')
     def test_list_receiver(self, mock_smptp):
-        payload = {"sender": ConfigClass.EMAIL_SENDER,
-                   "receiver": ["jzhang@indocresearch.org"],
+        payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                    "message": "test email"}
         self.log.info('\n')
         self.log.info('test post with receiver in the list format in payload'.center(80, '-'))
@@ -212,8 +212,8 @@ class TestWriteEmails(unittest.TestCase):
 
     @patch.object(smtplib, 'SMTP', side_effect=smtplib.socket.gaierror)
     def test_smtp_error(self, mock_smtp_connection_error):
-        payload = {"sender": ConfigClass.EMAIL_SENDER,
-                   "receiver": ["jzhang@indocresearch.org"],
+        payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                    "message": "test email"}
         self.log.info('\n')
         self.log.info('test smtplib.socket.gaierror occurred during posting'.center(80, '-'))
@@ -234,8 +234,8 @@ class TestWriteEmails(unittest.TestCase):
     @unittest.skip("This test does not work with Jenkins")
     @patch.object(SMTP, 'sendmail', side_effect=HTTPError)
     def test_error(self, mock_smtp_send_error):
-        payload = {"sender": ConfigClass.EMAIL_SENDER,
-                   "receiver": ["jzhang@indocresearch.org"],
+        payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                    "message": "test email"}
         self.log.info('\n')
         self.log.info('test unexpected error(HTTPError) occurred during posting'.center(80, '-'))
@@ -264,8 +264,8 @@ class TestWriteEmails(unittest.TestCase):
             os.system('touch ' + png_path)
 
         with open(png_path, 'rb') as img:
-            payload = {"sender": ConfigClass.EMAIL_SENDER,
-                       "receiver": ["jzhang@indocresearch.org"],
+            payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                       "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                        "message": "test email",
                        "subject": "test email",
                        "msg_type": "plain",
@@ -309,8 +309,8 @@ class TestWriteEmails(unittest.TestCase):
             with open(jpg_path, 'rb') as img2:
                 with open(jpeg_path, 'rb') as img3:
                     with open(gif_path, 'rb') as img4:
-                        payload = {"sender": ConfigClass.EMAIL_SENDER,
-                                   "receiver": ["jzhang@indocresearch.org"],
+                        payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                                    "message": "test email",
                                    "subject": "test email",
                                    "msg_type": "plain",
@@ -349,8 +349,8 @@ class TestWriteEmails(unittest.TestCase):
             os.system('touch ' + xml_path)
 
         with open(xml_path, 'rb') as img:
-            payload = {"sender": ConfigClass.EMAIL_SENDER,
-                       "receiver": ["jzhang@indocresearch.org"],
+            payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                       "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                        "message": "test email",
                        "subject": "test email",
                        "msg_type": "plain",
@@ -386,8 +386,8 @@ class TestWriteEmails(unittest.TestCase):
                 os.system('fallocate -l 2.5M ' + large_file_path)
 
         with open(large_file_path, 'rb') as img:
-            payload = {"sender": ConfigClass.EMAIL_SENDER,
-                       "receiver": ["jzhang@indocresearch.org"],
+            payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
+                       "receiver": [ConfigClass.TEST_EMAIL_RECEIVER],
                        "message": "test email",
                        "subject": "test email",
                        "msg_type": "plain",
