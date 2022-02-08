@@ -35,11 +35,6 @@ class Settings(BaseSettings):
     namespace: str = ""
     env: str = "test"
     OPEN_TELEMETRY_ENABLED: bool = False
-    NFS_ROOT_PATH = "./"
-    VRE_ROOT_PATH = "/vre-data"
-    ROOT_PATH = {
-        "vre": "/vre-data"
-    }.get(SRV_NAMESPACE, "/data/vre-storage")
     API_MODULES: List = ["service_email"]
     postfix: str = ""
     smtp_user: str = ""
@@ -58,11 +53,16 @@ class Settings(BaseSettings):
     ANNOUNCEMENTS_SCHEMA: str = 'announcements'
     version = "1.1.0"
     api_modules = API_MODULES
-    EMAIL_SENDER: str = "notification@indocresearch.org"
+    TEST_EMAIL_SENDER: str = ""
+    TEST_EMAIL_RECEIVER: str = ""
+    TEST_EMAIL_RECEIVER_2: str = ""
 
     def __init__(self):
         super().__init__()
         self.SQLALCHEMY_DATABASE_URI = f"postgresql://{self.RDS_USER}:{self.RDS_PWD}@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}"
+        if self.postfix != '' and self.smtp_port:
+            self.POSTFIX_URL = self.postfix
+            self.POSTFIX_PORT = self.smtp_port
 
     class Config:
         env_file = '.env'
