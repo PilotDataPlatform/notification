@@ -29,15 +29,9 @@ _logger = LoggerFactory('api_emails').get_logger()
 
 def send_emails(receivers, sender, subject, text, msg_type, attachments) -> JSONResponse:
     try:
-        env = ConfigClass.env
-        if env is None or env == 'charite':
-            client = smtplib.SMTP(
-                ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
-        else:
-            client = smtplib.SMTP(
-                ConfigClass.postfix, ConfigClass.smtp_port)
+        client = smtplib.SMTP(ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
+        if ConfigClass.smtp_user and ConfigClass.smtp_pass:
             client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
-
         _logger.info('email server connection established')
     except smtplib.socket.gaierror as e:
         _logger.exception(
@@ -144,15 +138,9 @@ class WriteEmails:
 
         # Open the SMTP connection just to test that it's working before doing the real sending in the background
         try:
-            env = ConfigClass.env
-            if env is None or env == 'charite':
-                client = smtplib.SMTP(
-                    ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
-            else:
-                client = smtplib.SMTP(
-                    ConfigClass.postfix, ConfigClass.smtp_port)
+            client = smtplib.SMTP(ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
+            if ConfigClass.smtp_user and ConfigClass.smtp_pass:
                 client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
-
             _logger.info('email server connection established')
         except smtplib.socket.gaierror as e:
             api_response.result = str(e)
