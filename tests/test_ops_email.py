@@ -169,7 +169,7 @@ class TestWriteEmails(unittest.TestCase):
     @patch('smtplib.SMTP')
     def test_multiple_receiver_list(self, mock_smtp):
         payload = {"sender": ConfigClass.TEST_EMAIL_SENDER,
-                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER, "jiayu@indocresearch.org"],
+                   "receiver": [ConfigClass.TEST_EMAIL_RECEIVER, ConfigClass.TEST_EMAIL_RECEIVER_2],
                    "message": "test email"}
         self.log.info('\n')
         self.log.info('test post with a list of receivers in payload'.center(80, '-'))

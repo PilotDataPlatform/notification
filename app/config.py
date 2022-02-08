@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     api_modules = API_MODULES
     TEST_EMAIL_SENDER: str = ""
     TEST_EMAIL_RECEIVER: str = ""
+    TEST_EMAIL_RECEIVER_2: str = ""
 
     def __init__(self):
         super().__init__()
