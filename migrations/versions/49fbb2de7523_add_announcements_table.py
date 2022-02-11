@@ -1,13 +1,11 @@
-"""Add announcements table
+"""Add announcements table.
 
 Revision ID: 49fbb2de7523
 Revises: acfc65939c91
 Create Date: 2022-01-21 12:01:11.749704
-
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '49fbb2de7523'
@@ -17,7 +15,8 @@ depends_on = None
 
 
 def upgrade():
-    op.create_table('announcement',
+    op.create_table(
+        'announcement',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('project_code', sa.String(), nullable=True),
         sa.Column('content', sa.String(), nullable=True),
@@ -27,8 +26,9 @@ def upgrade():
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('id'),
         sa.UniqueConstraint('project_code', 'version', name='project_code_version'),
-        schema='announcements'
+        schema='announcements',
     )
+
 
 def downgrade():
     op.drop_table('announcement', schema='announcements')

@@ -1,6 +1,12 @@
-from sqlalchemy import Column, String, DateTime, Integer, UniqueConstraint
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
+from sqlalchemy.ext.declarative import declarative_base
+
 from app.config import ConfigClass
 
 Base = declarative_base()
@@ -17,7 +23,7 @@ class AnnouncementModel(Base):
 
     __table_args__ = (
         UniqueConstraint('project_code', 'version', name='project_code_version'),
-        {"schema": ConfigClass.ANNOUNCEMENTS_SCHEMA},
+        {'schema': ConfigClass.ANNOUNCEMENTS_SCHEMA},
     )
 
     def __init__(self, project_code, content, version, publisher):
@@ -28,8 +34,8 @@ class AnnouncementModel(Base):
 
     def to_dict(self):
         result = {}
-        for field in ["id", "project_code", "content", "version", "date", "publisher"]:
-            if field == "date":
+        for field in ['id', 'project_code', 'content', 'version', 'date', 'publisher']:
+            if field == 'date':
                 result[field] = str(getattr(self, field))
             else:
                 result[field] = getattr(self, field)

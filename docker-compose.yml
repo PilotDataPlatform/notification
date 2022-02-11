@@ -19,7 +19,7 @@ services:
       RDS_PWD: password
       NOTIFICATIONS_SCHEMA: notifications
       ANNOUNCEMENTS_SCHEMA: announcements
-    depends_on: 
+    depends_on:
       - mailhog
   mailhog:
     image: mailhog/mailhog
