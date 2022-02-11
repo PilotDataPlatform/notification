@@ -23,14 +23,49 @@ services:
       RDS_PWD: password
       NOTIFICATIONS_SCHEMA: notifications
       ANNOUNCEMENTS_SCHEMA: announcements
+      SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@db:5432/notifications
     depends_on:
       - mailhog
+      - db
     command:
       sh -c "
+        pip install alembic
+
+        alembic upgrade head
+
         uvicorn app.main:app --reload --host 0.0.0.0
       "
+
   mailhog:
     image: mailhog/mailhog
     ports:
       - "1025:1025"
       - "8025:8025"
+
+  db:
+    image: 'postgres:12-alpine'
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./migrations/scripts/create_notifications_db.sql:/docker-entrypoint-initdb.d/01.sql
+  pgadmin:
+    image: 'dpage/pgadmin4'
+    ports:
+      - "8750:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    logging:
+      driver: none
+    volumes:
+      - ./local_config/pgadmin/:/var/lib/pgadmin/
+    depends_on:
+      - db
+
+networks:
+  default:
+    external:
+      name: pilot-network
