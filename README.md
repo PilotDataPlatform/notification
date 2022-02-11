@@ -15,7 +15,7 @@ Manages emails and system maintenance notifications.
 1. Install [Poetry](https://python-poetry.org/docs/#installation).
 2. Configure access to internal package registry.
 
-       poetry config http-basic.charite ${PIP_USERNAME} ${PIP_PASSWORD}
+       poetry config http-basic.pilot ${PIP_USERNAME} ${PIP_PASSWORD}
 
 3. Install dependencies.
 
