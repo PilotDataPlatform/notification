@@ -31,7 +31,7 @@ pipeline {
                 sh """
                 pip install --user poetry==1.1.12
                 ${HOME}/.local/bin/poetry config virtualenvs.in-project true
-                ${HOME}/.local/bin/poetry config http-basic.charite ${PIP_USERNAME} ${PIP_PASSWORD}
+                ${HOME}/.local/bin/poetry config http-basic.pilot ${PIP_USERNAME} ${PIP_PASSWORD}
                 ${HOME}/.local/bin/poetry install --no-root --no-interaction
                 ${HOME}/.local/bin/poetry run pytest --verbose -c tests/pytest.ini
                 """

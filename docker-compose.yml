@@ -1,7 +1,11 @@
 version: '3'
 services:
   web:
-    build: .
+    build:
+      context: .
+      args:
+        PIP_USERNAME: "${PIP_USERNAME}"
+        PIP_PASSWORD: "${PIP_PASSWORD}"
     ports:
       - "5065:8000"
     environment:
@@ -21,6 +25,10 @@ services:
       ANNOUNCEMENTS_SCHEMA: announcements
     depends_on:
       - mailhog
+    command:
+      sh -c "
+        uvicorn app.main:app --reload --host 0.0.0.0
+      "
   mailhog:
     image: mailhog/mailhog
     ports:
