@@ -1,10 +1,10 @@
 pipeline {
     agent { label 'small' }
     environment {
-      imagename_dev = "registry-gitlab.indocresearch.org/platform/service_notification"
-      imagename_staging = "registry-gitlab.indocresearch.org/platform/service_notification"
+      imagename_dev = "registry-gitlab.indocresearch.org/pilot/service_notification"
+      imagename_staging = "registry-gitlab.indocresearch.org/pilot/service_notification"
       commit = sh(returnStdout: true, script: 'git describe --always').trim()
-      registryCredential = 'platform-gitlab-registry'
+      registryCredential = 'pilot-gitlab-registry'
       dockerImage = ''
     }
 
@@ -14,7 +14,7 @@ pipeline {
         when { branch 'k8s-dev' }
         steps {
             git branch: 'k8s-dev',
-                url: 'https://git.indocresearch.org/platform/service_notification.git',
+                url: 'https://git.indocresearch.org/pilot/service_notification.git',
                 credentialsId: 'lzhao'
         }
     }
@@ -31,7 +31,7 @@ pipeline {
                 sh """
                 pip install --user poetry==1.1.12
                 ${HOME}/.local/bin/poetry config virtualenvs.in-project true
-                ${HOME}/.local/bin/poetry config http-basic.charite ${PIP_USERNAME} ${PIP_PASSWORD}
+                ${HOME}/.local/bin/poetry config http-basic.pilot ${PIP_USERNAME} ${PIP_PASSWORD}
                 ${HOME}/.local/bin/poetry install --no-root --no-interaction
                 ${HOME}/.local/bin/poetry run pytest --verbose -c tests/pytest.ini
                 """
@@ -45,7 +45,7 @@ pipeline {
         script {
           withCredentials([usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD')]) {        
             docker.withRegistry('https://registry-gitlab.indocresearch.org', registryCredential) {
-                customImage = docker.build("registry-gitlab.indocresearch.org/platform/service_notification:$commit", "--build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} --add-host git.indocresearch.org:10.4.3.151 .")
+                customImage = docker.build("registry-gitlab.indocresearch.org/pilot/service_notification:$commit", "--build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} --add-host git.indocresearch.org:10.4.3.151 .")
                 customImage.push()
             }
           }
@@ -63,9 +63,11 @@ pipeline {
     stage('DEV Deploy') {
       when {branch "k8s-dev"}
       steps{
-        sh "sed -i 's/<VERSION>/$commit/g' kubernetes/dev-deployment.yaml"
-        sh "kubectl config use-context dev"
-        sh "kubectl apply -f kubernetes/dev-deployment.yaml"
+        build(job: "/VRE-IaC/UpdateAppVersion", parameters: [
+          [$class: 'StringParameterValue', name: 'TF_TARGET_ENV', value: 'dev' ],
+          [$class: 'StringParameterValue', name: 'TARGET_RELEASE', value: 'notification' ],
+          [$class: 'StringParameterValue', name: 'NEW_APP_VERSION', value: "$commit" ]
+        ])
       }
     }
 
@@ -73,7 +75,7 @@ pipeline {
         when { branch 'k8s-staging' }
         steps {
             git branch: 'k8s-staging',
-                url: 'https://git.indocresearch.org/platform/service_notification.git',
+                url: 'https://git.indocresearch.org/pilot/service_notification.git',
                 credentialsId: 'lzhao'
         }
     }
@@ -84,7 +86,7 @@ pipeline {
         script {
             withCredentials([usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD')]) {        
               docker.withRegistry('https://registry-gitlab.indocresearch.org', registryCredential) {
-                  customImage = docker.build("registry-gitlab.indocresearch.org/platform/service_notification:$commit", "--build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} --add-host git.indocresearch.org:10.4.3.151 .")
+                  customImage = docker.build("registry-gitlab.indocresearch.org/pilot/service_notification:$commit", "--build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} --add-host git.indocresearch.org:10.4.3.151 .")
                   customImage.push()
               }
             }          
@@ -102,9 +104,11 @@ pipeline {
     stage('STAGING Deploy') {
       when {branch "k8s-staging"}
       steps{
-        sh "sed -i 's/<VERSION>/$commit/g' kubernetes/staging-deployment.yaml"
-        sh "kubectl config use-context staging"
-        sh "kubectl apply -f kubernetes/staging-deployment.yaml"
+        build(job: "/VRE-IaC/UpdateAppVersion", parameters: [
+          [$class: 'StringParameterValue', name: 'TF_TARGET_ENV', value: 'staging' ],
+          [$class: 'StringParameterValue', name: 'TARGET_RELEASE', value: 'notification' ],
+          [$class: 'StringParameterValue', name: 'NEW_APP_VERSION', value: "$commit" ]
+        ])
       }
     }
   }
@@ -115,3 +119,4 @@ pipeline {
   }
 
 }
+
