@@ -16,14 +16,15 @@ services:
       SMTP_PORT: 1025
       POSTFIX_URL: mailhog
       POSTFIX_PORT: 1025
-      RDS_HOST: localhost
-      RDS_PORT: 5432
-      RDS_DBNAME: notification
       RDS_USER: postgres
-      RDS_PWD: password
+      RDS_PWD: postgres
+      RDS_HOST: db
+      RDS_PORT: 5432
       NOTIFICATIONS_SCHEMA: notifications
       ANNOUNCEMENTS_SCHEMA: announcements
       SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@db:5432/notifications
+    volumes:
+    - .:/usr/src/app
     depends_on:
       - mailhog
       - db
