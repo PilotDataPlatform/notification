@@ -1,15 +1,17 @@
 import unittest
+from json import loads
+
 import pytest
 from fastapi.testclient import TestClient
+from logger import LoggerFactory
+
 from app.main import app
-from tests.logger import Logger
-from json import loads
 
 notificationId = None
 
 
 class TestNotification(unittest.TestCase):
-    log = Logger(name='test_notification.log')
+    log = LoggerFactory(name='test_notification.log').get_logger()
     app = TestClient(app)
 
     def setUp(self):
