@@ -1,21 +1,22 @@
-import unittest
-from unittest.mock import patch
-from os import path
-import os
-from requests import HTTPError
-import smtplib
-from smtplib import SMTP
-from tests.logger import Logger
 import base64
-from fastapi.testclient import TestClient
-from app.main import app
+import os
 import platform
+import smtplib
+import unittest
+from os import path
+from smtplib import SMTP
+from unittest.mock import patch
+
+from fastapi.testclient import TestClient
+from logger import LoggerFactory
+from requests import HTTPError
+
 from app.config import ConfigClass
+from app.main import app
 
 
 class TestWriteEmails(unittest.TestCase):
-    log_name = 'test_ops_email.log'
-    log = Logger(name=log_name)
+    log = LoggerFactory(name='test_ops_email.log').get_logger()
     log.warning("Removing old records")
     log.debug("Test is ready to begin")
     post_api = "/v1/email/"
