@@ -10,10 +10,6 @@ services:
       - "5065:8000"
     environment:
       port: 8000
-      POSTFIX: mailhog
-      SMTP_USER: user
-      SMTP_PASS: pass
-      SMTP_PORT: 1025
       POSTFIX_URL: mailhog
       POSTFIX_PORT: 1025
       RDS_USER: postgres

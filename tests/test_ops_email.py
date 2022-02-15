@@ -1,42 +1,37 @@
 import base64
 import os
 import platform
-import smtplib
-import unittest
 from os import path
-from smtplib import SMTP
-from unittest.mock import patch
 
 from fastapi.testclient import TestClient
-from requests import HTTPError
+import pytest
 
 from app.config import ConfigClass
 from app.main import app
 from tests.logger import Logger
 
 
-class TestWriteEmails(unittest.TestCase):
+class TestWriteEmails():
     log_name = 'test_ops_email.log'
     log = Logger(name=log_name)
     log.warning('Removing old records')
     log.debug('Test is ready to begin')
     post_api = '/v1/email/'
+    app = TestClient(app)
 
-    def setUp(self):
-        # app = create_app()
-        # app.config['TESTING'] = True
-        # app.config['DEBUG'] = True
-        self.app = TestClient(app)
+    @classmethod
+    def setup_class(cls):
+        pass
 
-    def tearDown(self):
+    @classmethod
+    def teardown_class(cls):
         os.system('rm -rf logs')
 
-    @patch('smtplib.SMTP')
-    def test_post_correct(self, mock_smtp):
+    def test_post_correct(self):
         payload = {
             'sender': ConfigClass.TEST_EMAIL_SENDER,
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
-            'message': 'test email',
+            'message': 'Test email contents',
         }
         self.log.info('\n')
         self.log.info('test post with correct payload'.center(80, '-'))
@@ -45,10 +40,9 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info(f'COMPARING: {response.status_code} VS {200}')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
-    @patch('smtplib.SMTP')
-    def test_post_no_sender(self, mock_smtp):
+    def test_post_no_sender(self):
         payload = {'sender': None, 'receiver': ConfigClass.TEST_EMAIL_RECEIVER, 'message': 'test email'}
         self.log.info('\n')
         self.log.info('test post without sender in payload'.center(80, '-'))
@@ -57,14 +51,13 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info(f'COMPARING: {response.status_code} VS {422}')
-        self.assertEqual(response.status_code, 422)
+        assert response.status_code == 422
         self.log.info(f"COMPARING: {b'none is not an allowed value'}")
         self.log.info('IN')
         self.log.info(f'{response.content}')
         assert b'none is not an allowed value' in response.content
 
-    @patch('smtplib.SMTP')
-    def test_post_no_receiver(self, mock_smtp):
+    def test_post_no_receiver(self):
         payload = {'sender': ConfigClass.TEST_EMAIL_SENDER, 'receiver': None, 'message': 'test email'}
         self.log.info('\n')
         self.log.info('test post without receiver in payload'.center(80, '-'))
@@ -73,14 +66,13 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info(f'COMPARING: {response.status_code} VS {422}')
-        self.assertEqual(response.status_code, 422)
+        assert response.status_code == 422
         self.log.info(f"COMPARING: {b'none is not an allowed value'}")
         self.log.info('IN')
         self.log.info(f'{response.content}')
         assert b'none is not an allowed value' in response.content
 
-    @patch('smtplib.SMTP')
-    def test_post_no_message(self, mock_smtp):
+    def test_post_no_message(self):
         payload = {
             'sender': ConfigClass.TEST_EMAIL_SENDER,
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
@@ -92,14 +84,13 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info(f'COMPARING: {response.status_code} VS {400}')
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
         self.log.info(f"COMPARING: {b'Text or template is required'}")
         self.log.info('IN')
         self.log.info(f'{response.content}')
         assert b'Text or template is required' in response.content
 
-    @patch('smtplib.SMTP')
-    def test_html_email(self, mock_smtp):
+    def test_html_email(self):
         html_msg = '''<!DOCTYPE html> \
                         <body>\
                         <h4>Dear member,</h4>\
@@ -118,10 +109,9 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info(f'COMPARING: {response.status_code} VS {200}')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
-    @patch('smtplib.SMTP')
-    def test_wrong_message(self, mock_smtp):
+    def test_wrong_message(self):
         payload = {
             'sender': ConfigClass.TEST_EMAIL_SENDER,
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
@@ -135,14 +125,13 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info(f'COMPARING: {response.status_code} VS {400}')
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
         self.log.info(f"COMPARING: {b'wrong email type'}")
         self.log.info('IN')
         self.log.info(f'{response.content}')
         assert b'wrong email type' in response.content
 
-    @patch('smtplib.SMTP')
-    def test_multiple_receiver_list(self, mock_smtp):
+    def test_multiple_receiver_list(self):
         payload = {
             'sender': ConfigClass.TEST_EMAIL_SENDER,
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER, ConfigClass.TEST_EMAIL_RECEIVER_2],
@@ -155,10 +144,9 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info(f'COMPARING: {response.status_code} VS {200}')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
-    @patch('smtplib.SMTP')
-    def test_list_receiver(self, mock_smptp):
+    def test_list_receiver(self):
         payload = {
             'sender': ConfigClass.TEST_EMAIL_SENDER,
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
@@ -171,17 +159,17 @@ class TestWriteEmails(unittest.TestCase):
         response = self.app.post(self.post_api, json=payload)
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info(f'COMPARING: {response.status_code} VS {200}')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
-    @unittest.skip('Changing logging in progress')
+    @pytest.mark.skip('Changing logging in progress')
     def test_logs(self):
         self.log.info('\n')
         self.log.info('test check if logs directory created'.center(80, '-'))
         self.log.info(f"EXISTS OF LOGS FOLDER: {path.exists('./logs')}")
         self.assertTrue(path.exists('./logs'))
 
-    @patch.object(smtplib, 'SMTP', side_effect=smtplib.socket.gaierror)
-    def test_smtp_error(self, mock_smtp_connection_error):
+    @pytest.mark.skip('Not working with Pytest yet')
+    def test_smtp_error(self):
         payload = {
             'sender': ConfigClass.TEST_EMAIL_SENDER,
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
@@ -195,13 +183,12 @@ class TestWriteEmails(unittest.TestCase):
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info('MOCK ERROR: smtplib.socket.gaierror')
         self.log.info(f'COMPARING: {response.status_code} VS {500}')
-        self.assertEqual(response.status_code, 500)
+        assert response.status_code == 500
         self.log.info(f'CHECKING IS NOT NONE: {response.content}')
-        self.assertIsNotNone(response.content)
+        assert response.content != None
 
-    @unittest.skip('This test does not work with Jenkins')
-    @patch.object(SMTP, 'sendmail', side_effect=HTTPError)
-    def test_error(self, mock_smtp_send_error):
+    @pytest.mark.skip('This test does not work with Jenkins')
+    def test_error(self):
         payload = {
             'sender': ConfigClass.TEST_EMAIL_SENDER,
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
@@ -215,12 +202,11 @@ class TestWriteEmails(unittest.TestCase):
         self.log.info(f'POST RESPONSE: {response}')
         self.log.info('MOCK ERROR: requests.HTTPError')
         self.log.info(f'COMPARING: {response.status_code} VS {500}')
-        self.assertEqual(response.status_code, 500)
+        assert response.status_code == 500
         self.log.info(f'CHECKING IS NOT NONE: {response.content}')
-        self.assertIsNotNone(response.content)
+        assert response.content != None
 
-    @patch('smtplib.SMTP')
-    def test_send_email_with_png_attachment(self, mock_smtp):
+    def test_send_email_with_png_attachment(self):
         self.log.info('\n')
         self.log.info('test send email with attachment'.center(80, '-'))
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -243,11 +229,10 @@ class TestWriteEmails(unittest.TestCase):
             response = self.app.post(self.post_api, json=payload)
             self.log.info(f'POST RESPONSE: {response}')
             self.log.info(f'COMPARING: {response.status_code} VS {200}')
-            self.assertEqual(response.status_code, 200)
+            assert response.status_code == 200
             os.system('rm ' + png_path)
 
-    @patch('smtplib.SMTP')
-    def test_send_email_with_multiple_attachments(self, mock_smtp):
+    def test_send_email_with_multiple_attachments(self):
         self.log.info('\n')
         self.log.info('test send email with multiple attachments'.center(80, '-'))
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -289,14 +274,13 @@ class TestWriteEmails(unittest.TestCase):
                         response = self.app.post(self.post_api, json=payload)
                         self.log.info(f'POST RESPONSE: {response}')
                         self.log.info(f'COMPARING: {response.status_code} VS {200}')
-                        self.assertEqual(response.status_code, 200)
+                        assert response.status_code == 200
                         os.system('rm ' + pdf_path)
                         os.system('rm ' + jpg_path)
                         os.system('rm ' + jpeg_path)
                         os.system('rm ' + gif_path)
 
-    @patch('smtplib.SMTP')
-    def test_send_email_with_unsupport_attachment(self, mock_smtp):
+    def test_send_email_with_unsupport_attachment(self):
         self.log.info('\n')
         self.log.info('test send email with unsupported attachment'.center(80, '-'))
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -320,11 +304,10 @@ class TestWriteEmails(unittest.TestCase):
             response = self.app.post(self.post_api, json=payload)
             self.log.info(f'POST RESPONSE: {response.content}')
             self.log.info(f'COMPARING: {response.status_code} VS {400}')
-            self.assertEqual(response.status_code, 400)
+            assert response.status_code == 400
             os.system('rm ' + xml_path)
 
-    @patch('smtplib.SMTP')
-    def test_send_email_with_large_attachment(self, mock_smtp):
+    def test_send_email_with_large_attachment(self):
         self.log.info('\n')
         self.log.info('test send email with oversized attachment'.center(80, '-'))
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -353,5 +336,5 @@ class TestWriteEmails(unittest.TestCase):
             response = self.app.post(self.post_api, json=payload)
             self.log.info(f'POST RESPONSE: {response.content}')
             self.log.info(f'COMPARING: {response.status_code} VS {413}')
-            self.assertEqual(response.status_code, 413)
+            assert response.status_code == 413
             os.system('rm ' + large_file_path)
