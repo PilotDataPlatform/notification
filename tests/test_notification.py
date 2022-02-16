@@ -4,13 +4,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
-from tests.logger import Logger
+from logger import LoggerFactory
 
 notificationId = None
 
 
-class TestNotification:
-    log = Logger(name='test_notification.log')
+class TestNotification():
+    log = LoggerFactory(name='test_notification.log').get_logger()
     app = TestClient(app)
 
     @classmethod

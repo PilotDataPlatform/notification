@@ -73,7 +73,7 @@ class Settings(BaseSettings):
 
         @classmethod
         def customise_sources(cls, init_settings, env_settings, file_secret_settings):
-            return load_vault_settings, env_settings, init_settings, file_secret_settings
+            return env_settings, load_vault_settings, init_settings, file_secret_settings
 
 
 @lru_cache(1)

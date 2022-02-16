@@ -8,12 +8,11 @@ import pytest
 
 from app.config import ConfigClass
 from app.main import app
-from tests.logger import Logger
+from logger import LoggerFactory
 
 
 class TestWriteEmails():
-    log_name = 'test_ops_email.log'
-    log = Logger(name=log_name)
+    log = LoggerFactory(name='test_ops_email.log').get_logger()
     log.warning('Removing old records')
     log.debug('Test is ready to begin')
     post_api = '/v1/email/'
