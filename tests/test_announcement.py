@@ -1,14 +1,11 @@
-from json import loads
-
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
-from tests.logger import Logger
+from logger import LoggerFactory
 
 
 class TestAnnouncement:
-    log = Logger(name='test_announcement.log')
+    log = LoggerFactory(name='test_announcement.log').get_logger()
     app = TestClient(app)
 
     @classmethod
