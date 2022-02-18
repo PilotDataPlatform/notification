@@ -1,0 +1,28 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "5065:8000"
+    environment:
+      port: 8000
+      POSTFIX: mailhog
+      SMTP_USER: user
+      SMTP_PASS: pass
+      SMTP_PORT: 1025
+      POSTFIX_URL: mailhog
+      POSTFIX_PORT: 1025
+      RDS_HOST: localhost
+      RDS_PORT: 5432
+      RDS_DBNAME: notification
+      RDS_USER: postgres
+      RDS_PWD: password
+      NOTIFICATIONS_SCHEMA: notifications
+      ANNOUNCEMENTS_SCHEMA: announcements
+    depends_on: 
+      - mailhog
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
