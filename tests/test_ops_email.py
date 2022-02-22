@@ -8,23 +8,11 @@ import pytest
 
 from app.config import ConfigClass
 from app.main import app
-from logger import LoggerFactory
 
 
 class TestWriteEmails():
-    log = LoggerFactory(name='test_ops_email.log').get_logger()
-    log.warning('Removing old records')
-    log.debug('Test is ready to begin')
     post_api = '/v1/email/'
     app = TestClient(app)
-
-    @classmethod
-    def setup_class(cls):
-        pass
-
-    @classmethod
-    def teardown_class(cls):
-        os.system('rm -rf logs')
 
     def test_post_correct(self):
         payload = {
@@ -32,43 +20,19 @@ class TestWriteEmails():
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
             'message': 'Test email contents',
         }
-        self.log.info('\n')
-        self.log.info('test post with correct payload'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info(f'COMPARING: {response.status_code} VS {200}')
         assert response.status_code == 200
 
     def test_post_no_sender(self):
         payload = {'sender': None, 'receiver': ConfigClass.TEST_EMAIL_RECEIVER, 'message': 'test email'}
-        self.log.info('\n')
-        self.log.info('test post without sender in payload'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info(f'COMPARING: {response.status_code} VS {422}')
         assert response.status_code == 422
-        self.log.info(f"COMPARING: {b'none is not an allowed value'}")
-        self.log.info('IN')
-        self.log.info(f'{response.content}')
         assert b'none is not an allowed value' in response.content
 
     def test_post_no_receiver(self):
         payload = {'sender': ConfigClass.TEST_EMAIL_SENDER, 'receiver': None, 'message': 'test email'}
-        self.log.info('\n')
-        self.log.info('test post without receiver in payload'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info(f'COMPARING: {response.status_code} VS {422}')
         assert response.status_code == 422
-        self.log.info(f"COMPARING: {b'none is not an allowed value'}")
-        self.log.info('IN')
-        self.log.info(f'{response.content}')
         assert b'none is not an allowed value' in response.content
 
     def test_post_no_message(self):
@@ -76,17 +40,8 @@ class TestWriteEmails():
             'sender': ConfigClass.TEST_EMAIL_SENDER,
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
         }
-        self.log.info('\n')
-        self.log.info('test post without message in payload'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info(f'COMPARING: {response.status_code} VS {400}')
         assert response.status_code == 400
-        self.log.info(f"COMPARING: {b'Text or template is required'}")
-        self.log.info('IN')
-        self.log.info(f'{response.content}')
         assert b'Text or template is required' in response.content
 
     def test_html_email(self):
@@ -101,13 +56,7 @@ class TestWriteEmails():
             'message': html_msg,
             'msg_type': 'html',
         }
-        self.log.info('\n')
-        self.log.info('test post with html message type in payload'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info(f'COMPARING: {response.status_code} VS {200}')
         assert response.status_code == 200
 
     def test_wrong_message(self):
@@ -117,17 +66,8 @@ class TestWriteEmails():
             'message': 'test message',
             'msg_type': 'csv',
         }
-        self.log.info('\n')
-        self.log.info('test post with other(csv) message type in payload'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info(f'COMPARING: {response.status_code} VS {400}')
         assert response.status_code == 400
-        self.log.info(f"COMPARING: {b'wrong email type'}")
-        self.log.info('IN')
-        self.log.info(f'{response.content}')
         assert b'wrong email type' in response.content
 
     def test_multiple_receiver_list(self):
@@ -136,13 +76,7 @@ class TestWriteEmails():
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER, ConfigClass.TEST_EMAIL_RECEIVER_2],
             'message': 'test email',
         }
-        self.log.info('\n')
-        self.log.info('test post with a list of receivers in payload'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info(f'COMPARING: {response.status_code} VS {200}')
         assert response.status_code == 200
 
     def test_list_receiver(self):
@@ -151,20 +85,11 @@ class TestWriteEmails():
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
-        self.log.info('\n')
-        self.log.info('test post with receiver in the list format in payload'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info(f'COMPARING: {response.status_code} VS {200}')
         assert response.status_code == 200
 
     @pytest.mark.skip('Changing logging in progress')
     def test_logs(self):
-        self.log.info('\n')
-        self.log.info('test check if logs directory created'.center(80, '-'))
-        self.log.info(f"EXISTS OF LOGS FOLDER: {path.exists('./logs')}")
         self.assertTrue(path.exists('./logs'))
 
     @pytest.mark.skip('Not working with Pytest yet')
@@ -174,16 +99,8 @@ class TestWriteEmails():
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
-        self.log.info('\n')
-        self.log.info('test smtplib.socket.gaierror occurred during posting'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info('MOCK ERROR: smtplib.socket.gaierror')
-        self.log.info(f'COMPARING: {response.status_code} VS {500}')
         assert response.status_code == 500
-        self.log.info(f'CHECKING IS NOT NONE: {response.content}')
         assert response.content != None
 
     @pytest.mark.skip('This test does not work with Jenkins')
@@ -193,24 +110,13 @@ class TestWriteEmails():
             'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
-        self.log.info('\n')
-        self.log.info('test unexpected error(HTTPError) occurred during posting'.center(80, '-'))
-        self.log.info(f'POST API: {self.post_api}')
-        self.log.info(f'POST PAYLOAD: {payload}')
         response = self.app.post(self.post_api, json=payload)
-        self.log.info(f'POST RESPONSE: {response}')
-        self.log.info('MOCK ERROR: requests.HTTPError')
-        self.log.info(f'COMPARING: {response.status_code} VS {500}')
         assert response.status_code == 500
-        self.log.info(f'CHECKING IS NOT NONE: {response.content}')
         assert response.content != None
 
     def test_send_email_with_png_attachment(self):
-        self.log.info('\n')
-        self.log.info('test send email with attachment'.center(80, '-'))
         dir_path = os.path.dirname(os.path.realpath(__file__))
         png_path = dir_path + '/Testdateiäöüß1.png'
-        self.log.info(f'Current directory {dir_path}')
         if not path.isfile(png_path):
             os.system('touch ' + png_path)
 
@@ -223,23 +129,16 @@ class TestWriteEmails():
                 'msg_type': 'plain',
                 'attachments': [{'name': png_path, 'data': base64.b64encode(img.read()).decode('utf-8')}],
             }
-            self.log.info(f'POST API: {self.post_api}')
-            self.log.info(f'POST PAYLOAD: {payload}')
             response = self.app.post(self.post_api, json=payload)
-            self.log.info(f'POST RESPONSE: {response}')
-            self.log.info(f'COMPARING: {response.status_code} VS {200}')
             assert response.status_code == 200
             os.system('rm ' + png_path)
 
     def test_send_email_with_multiple_attachments(self):
-        self.log.info('\n')
-        self.log.info('test send email with multiple attachments'.center(80, '-'))
         dir_path = os.path.dirname(os.path.realpath(__file__))
         pdf_path = dir_path + '/Testdateiäöüß2.pdf'
         jpg_path = dir_path + '/Testdateiäöüß3.jpg'
         jpeg_path = dir_path + '/Testdateiäöüß4.jpeg'
         gif_path = dir_path + '/Testdateiäöüß5.gif'
-        self.log.info(f'Current directory {dir_path}')
         if (
             not path.isfile(pdf_path)
             or not path.isfile(jpg_path)
@@ -268,11 +167,7 @@ class TestWriteEmails():
                                 {'name': gif_path, 'data': base64.b64encode(img4.read()).decode('utf-8')},
                             ],
                         }
-                        self.log.info(f'POST API: {self.post_api}')
-                        self.log.info(f'POST PAYLOAD: {payload}')
                         response = self.app.post(self.post_api, json=payload)
-                        self.log.info(f'POST RESPONSE: {response}')
-                        self.log.info(f'COMPARING: {response.status_code} VS {200}')
                         assert response.status_code == 200
                         os.system('rm ' + pdf_path)
                         os.system('rm ' + jpg_path)
@@ -280,12 +175,9 @@ class TestWriteEmails():
                         os.system('rm ' + gif_path)
 
     def test_send_email_with_unsupport_attachment(self):
-        self.log.info('\n')
-        self.log.info('test send email with unsupported attachment'.center(80, '-'))
         dir_path = os.path.dirname(os.path.realpath(__file__))
         xml_path = dir_path + '/Testdateiäöüß1.xml'
 
-        self.log.info(f'Current directory {dir_path}')
         if not path.isfile(xml_path):
             os.system('touch ' + xml_path)
 
@@ -298,21 +190,14 @@ class TestWriteEmails():
                 'msg_type': 'plain',
                 'attachments': [{'name': 'Testdateiäöüß1.xml', 'data': base64.b64encode(img.read()).decode('utf-8')}],
             }
-            self.log.info(f'POST API: {self.post_api}')
-            self.log.info(f'POST PAYLOAD: {payload}')
             response = self.app.post(self.post_api, json=payload)
-            self.log.info(f'POST RESPONSE: {response.content}')
-            self.log.info(f'COMPARING: {response.status_code} VS {400}')
             assert response.status_code == 400
             os.system('rm ' + xml_path)
 
     def test_send_email_with_large_attachment(self):
-        self.log.info('\n')
-        self.log.info('test send email with oversized attachment'.center(80, '-'))
         dir_path = os.path.dirname(os.path.realpath(__file__))
         large_file_path = dir_path + '/Testdateiäöüß_large.pdf'
 
-        self.log.info(f'Current directory {dir_path}')
         if not path.isfile(large_file_path):
             if platform.system() == 'Darwin':
                 os.system('mkfile -n 2.5M ' + large_file_path)
@@ -330,10 +215,6 @@ class TestWriteEmails():
                     {'name': 'Testdateiäöüß_large.pdf', 'data': base64.b64encode(img.read()).decode('utf-8')}
                 ],
             }
-            self.log.info(f'POST API: {self.post_api}')
-            self.log.info(f'POST PAYLOAD: {payload}')
             response = self.app.post(self.post_api, json=payload)
-            self.log.info(f'POST RESPONSE: {response.content}')
-            self.log.info(f'COMPARING: {response.status_code} VS {413}')
             assert response.status_code == 413
             os.system('rm ' + large_file_path)
