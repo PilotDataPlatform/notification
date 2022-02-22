@@ -6,39 +6,41 @@ from os import path
 from fastapi.testclient import TestClient
 import pytest
 
-from app.config import ConfigClass
 from app.main import app
 
 
 class TestWriteEmails():
     post_api = '/v1/email/'
     app = TestClient(app)
+    TEST_EMAIL_SENDER = 'sender@test.com'
+    TEST_EMAIL_RECEIVER = 'receiver@test.com'
+    TEST_EMAIL_RECEIVER_2 = 'receiver2@test.com'
 
     def test_post_correct(self):
         payload = {
-            'sender': ConfigClass.TEST_EMAIL_SENDER,
-            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'Test email contents',
         }
         response = self.app.post(self.post_api, json=payload)
         assert response.status_code == 200
 
     def test_post_no_sender(self):
-        payload = {'sender': None, 'receiver': ConfigClass.TEST_EMAIL_RECEIVER, 'message': 'test email'}
+        payload = {'sender': None, 'receiver': self.TEST_EMAIL_RECEIVER, 'message': 'test email'}
         response = self.app.post(self.post_api, json=payload)
         assert response.status_code == 422
         assert b'none is not an allowed value' in response.content
 
     def test_post_no_receiver(self):
-        payload = {'sender': ConfigClass.TEST_EMAIL_SENDER, 'receiver': None, 'message': 'test email'}
+        payload = {'sender': self.TEST_EMAIL_SENDER, 'receiver': None, 'message': 'test email'}
         response = self.app.post(self.post_api, json=payload)
         assert response.status_code == 422
         assert b'none is not an allowed value' in response.content
 
     def test_post_no_message(self):
         payload = {
-            'sender': ConfigClass.TEST_EMAIL_SENDER,
-            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': [self.TEST_EMAIL_RECEIVER],
         }
         response = self.app.post(self.post_api, json=payload)
         assert response.status_code == 400
@@ -51,8 +53,8 @@ class TestWriteEmails():
                         </body>\
             </html>'''
         payload = {
-            'sender': ConfigClass.TEST_EMAIL_SENDER,
-            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': html_msg,
             'msg_type': 'html',
         }
@@ -61,8 +63,8 @@ class TestWriteEmails():
 
     def test_wrong_message(self):
         payload = {
-            'sender': ConfigClass.TEST_EMAIL_SENDER,
-            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'test message',
             'msg_type': 'csv',
         }
@@ -72,8 +74,8 @@ class TestWriteEmails():
 
     def test_multiple_receiver_list(self):
         payload = {
-            'sender': ConfigClass.TEST_EMAIL_SENDER,
-            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER, ConfigClass.TEST_EMAIL_RECEIVER_2],
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': [self.TEST_EMAIL_RECEIVER, self.TEST_EMAIL_RECEIVER_2],
             'message': 'test email',
         }
         response = self.app.post(self.post_api, json=payload)
@@ -81,8 +83,8 @@ class TestWriteEmails():
 
     def test_list_receiver(self):
         payload = {
-            'sender': ConfigClass.TEST_EMAIL_SENDER,
-            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
         response = self.app.post(self.post_api, json=payload)
@@ -95,8 +97,8 @@ class TestWriteEmails():
     @pytest.mark.skip('Not working with Pytest yet')
     def test_smtp_error(self):
         payload = {
-            'sender': ConfigClass.TEST_EMAIL_SENDER,
-            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
         response = self.app.post(self.post_api, json=payload)
@@ -106,8 +108,8 @@ class TestWriteEmails():
     @pytest.mark.skip('This test does not work with Jenkins')
     def test_error(self):
         payload = {
-            'sender': ConfigClass.TEST_EMAIL_SENDER,
-            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
         response = self.app.post(self.post_api, json=payload)
@@ -122,8 +124,8 @@ class TestWriteEmails():
 
         with open(png_path, 'rb') as img:
             payload = {
-                'sender': ConfigClass.TEST_EMAIL_SENDER,
-                'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+                'sender': self.TEST_EMAIL_SENDER,
+                'receiver': [self.TEST_EMAIL_RECEIVER],
                 'message': 'test email',
                 'subject': 'test email',
                 'msg_type': 'plain',
@@ -155,8 +157,8 @@ class TestWriteEmails():
                 with open(jpeg_path, 'rb') as img3:
                     with open(gif_path, 'rb') as img4:
                         payload = {
-                            'sender': ConfigClass.TEST_EMAIL_SENDER,
-                            'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+                            'sender': self.TEST_EMAIL_SENDER,
+                            'receiver': [self.TEST_EMAIL_RECEIVER],
                             'message': 'test email',
                             'subject': 'test email',
                             'msg_type': 'plain',
@@ -183,8 +185,8 @@ class TestWriteEmails():
 
         with open(xml_path, 'rb') as img:
             payload = {
-                'sender': ConfigClass.TEST_EMAIL_SENDER,
-                'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+                'sender': self.TEST_EMAIL_SENDER,
+                'receiver': [self.TEST_EMAIL_RECEIVER],
                 'message': 'test email',
                 'subject': 'test email',
                 'msg_type': 'plain',
@@ -206,8 +208,8 @@ class TestWriteEmails():
 
         with open(large_file_path, 'rb') as img:
             payload = {
-                'sender': ConfigClass.TEST_EMAIL_SENDER,
-                'receiver': [ConfigClass.TEST_EMAIL_RECEIVER],
+                'sender': self.TEST_EMAIL_SENDER,
+                'receiver': [self.TEST_EMAIL_RECEIVER],
                 'message': 'test email',
                 'subject': 'test email',
                 'msg_type': 'plain',
