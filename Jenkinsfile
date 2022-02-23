@@ -29,6 +29,7 @@ pipeline {
                 file(credentialsId:'VAULT_CRT', variable: 'VAULT_CRT')
             ]) {
                 sh """
+                docker network rm pilot-network
                 docker network create pilot-network
                 docker build --add-host git.indocresearch.org:10.4.3.151 --build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} -t web .
                 docker-compose -f docker-compose.yml down
