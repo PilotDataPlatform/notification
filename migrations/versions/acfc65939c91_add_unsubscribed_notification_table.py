@@ -1,13 +1,11 @@
-"""Add unsubscribed_notifications table
+"""Add unsubscribed_notifications table.
 
 Revision ID: acfc65939c91
 Revises: f7b7903f78c4
 Create Date: 2022-01-21 11:54:15.802511
-
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'acfc65939c91'
@@ -17,13 +15,15 @@ depends_on = None
 
 
 def upgrade():
-    op.create_table('unsubscribed_notifications',
+    op.create_table(
+        'unsubscribed_notifications',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('username', sa.String(), nullable=False),
         sa.Column('notification_id', sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint('id'),
-        schema='notifications'
+        schema='notifications',
     )
+
 
 def downgrade():
     op.drop_table('unsubscribed_notifications', schema='notifications')

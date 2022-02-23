@@ -53,9 +53,6 @@ class Settings(BaseSettings):
     ANNOUNCEMENTS_SCHEMA: str = 'announcements'
     version = '1.1.0'
     api_modules = API_MODULES
-    TEST_EMAIL_SENDER: str = ''
-    TEST_EMAIL_RECEIVER: str = ''
-    TEST_EMAIL_RECEIVER_2: str = ''
 
     def __init__(self):
         super().__init__()

@@ -1,13 +1,11 @@
-"""Add system_maintenance table
+"""Add system_maintenance table.
 
 Revision ID: f7b7903f78c4
-Revises: 
+Revises:
 Create Date: 2022-01-21 11:53:38.076126
-
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'f7b7903f78c4'
@@ -17,7 +15,8 @@ depends_on = None
 
 
 def upgrade():
-    op.create_table('system_maintenance',
+    op.create_table(
+        'system_maintenance',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('type', sa.String(), nullable=True),
         sa.Column('message', sa.String(), nullable=True),
@@ -26,8 +25,9 @@ def upgrade():
         sa.Column('duration_unit', sa.String(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('id'),
-        schema='notifications'
+        schema='notifications',
     )
+
 
 def downgrade():
     op.drop_table('system_maintenance', schema='notifications')

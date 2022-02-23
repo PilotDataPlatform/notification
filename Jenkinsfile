@@ -29,6 +29,9 @@ pipeline {
                 file(credentialsId:'VAULT_CRT', variable: 'VAULT_CRT')
             ]) {
                 sh """
+                PIP_USERNAME=${PIP_USERNAME} PIP_PASSWORD=${PIP_PASSWORD} docker-compose up --detach
+                PYTHON_CONTAINER=`docker ps -f name=web -a -q`
+                docker exec -i -t ${PYTHON_CONTAINER} /bin/bash
                 pip install --user poetry==1.1.12
                 ${HOME}/.local/bin/poetry config virtualenvs.in-project true
                 ${HOME}/.local/bin/poetry config http-basic.pilot ${PIP_USERNAME} ${PIP_PASSWORD}
@@ -43,7 +46,7 @@ pipeline {
       when {branch "k8s-dev"}
       steps {
         script {
-          withCredentials([usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD')]) {        
+          withCredentials([usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD')]) {
             docker.withRegistry('https://registry-gitlab.indocresearch.org', registryCredential) {
                 customImage = docker.build("registry-gitlab.indocresearch.org/pilot/service_notification:$commit", "--build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} --add-host git.indocresearch.org:10.4.3.151 .")
                 customImage.push()
@@ -84,12 +87,12 @@ pipeline {
       when {branch "k8s-staging"}
       steps {
         script {
-            withCredentials([usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD')]) {        
+            withCredentials([usernamePassword(credentialsId:'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD')]) {
               docker.withRegistry('https://registry-gitlab.indocresearch.org', registryCredential) {
                   customImage = docker.build("registry-gitlab.indocresearch.org/pilot/service_notification:$commit", "--build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} --add-host git.indocresearch.org:10.4.3.151 .")
                   customImage.push()
               }
-            }          
+            }
         }
       }
     }

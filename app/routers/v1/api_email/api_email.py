@@ -34,8 +34,7 @@ def send_emails(receivers, sender, subject, text, msg_type, attachments) -> JSON
             client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
         _logger.info('email server connection established')
     except smtplib.socket.gaierror as e:
-        _logger.exception(
-            f'Error connecting with Mail host, {e}')
+        _logger.exception(f'Error connecting with Mail host, {e}')
         api_response = APIResponse()
         api_response.result = str(e)
         api_response.code = EAPIResponseCode.internal_error
@@ -58,8 +57,7 @@ def send_emails(receivers, sender, subject, text, msg_type, attachments) -> JSON
             _logger.info(f"\nto: {to}\nfrom: {sender}\nsubject: {msg['Subject']}")
             client.sendmail(sender, to, msg.as_string())
         except Exception as e:
-            _logger.exception(
-                f'Error when sending email to {to}, {e}')
+            _logger.exception(f'Error when sending email to {to}, {e}')
             api_response = APIResponse()
             api_response.result = str(e)
             api_response.code = EAPIResponseCode.internal_error
@@ -69,11 +67,10 @@ def send_emails(receivers, sender, subject, text, msg_type, attachments) -> JSON
 
 @cbv.cbv(router)
 class WriteEmails:
-
-    @router.post('/', response_model=POSTEmailResponse, summary="Send emails")
+    @router.post('/', response_model=POSTEmailResponse, summary='Send emails')
     async def post(self, data: POSTEmail):
         api_response = POSTEmailResponse()
-        templates = Jinja2Templates(directory="emails")
+        templates = Jinja2Templates(directory='emails')
         text = data.message
         template = data.template
 
@@ -99,10 +96,10 @@ class WriteEmails:
 
         attachments = []
         for file in data.attachments:
-            if "," in file.get("data"):
-                attach_data = base64.b64decode(file.get("data").split(",")[1])
+            if ',' in file.get('data'):
+                attach_data = base64.b64decode(file.get('data').split(',')[1])
             else:
-                attach_data = base64.b64decode(file.get("data"))
+                attach_data = base64.b64decode(file.get('data'))
 
             # check if bigger to 2mb
             if len(attach_data) > 2000000:
@@ -110,7 +107,7 @@ class WriteEmails:
                 api_response.code = EAPIResponseCode.to_large
                 return api_response.json_response()
 
-            filename = file.get("name")
+            filename = file.get('name')
             if not allowed_file(filename):
                 api_response.result = 'File type not allowed'
                 api_response.code = EAPIResponseCode.bad_request
@@ -131,8 +128,8 @@ class WriteEmails:
             return api_response.json_response()
 
         log_data = data.__dict__.copy()
-        if log_data.get("attachments"):
-            del log_data["attachments"]
+        if log_data.get('attachments'):
+            del log_data['attachments']
         _logger.info(f'payload: {log_data}')
         _logger.info(f'receiver: {data.receiver}')
 
@@ -155,5 +152,5 @@ class WriteEmails:
         p.daemon = True
         p.start()
         _logger.info(f'Email sent successfully to {data.receiver}')
-        api_response.result = "Email sent successfully. "
+        api_response.result = 'Email sent successfully. '
         return api_response.json_response()

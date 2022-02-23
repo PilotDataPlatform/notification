@@ -12,6 +12,14 @@ Manages emails and system maintenance notifications.
 - Vault connection credentials or custom-set environment variables.
 
 ### Installation
+#### Using Docker
+1. Run Docker compose with environment variables.
+
+       PIP_USERNAME=[...] PIP_PASSWORD=[...] docker-compose up
+
+2. Find service locally at `http://localhost:5065/`.
+
+#### Without Docker
 1. Install [Poetry](https://python-poetry.org/docs/#installation).
 2. Configure access to internal package registry.
 

@@ -1,7 +1,8 @@
-from app.models.base_models import APIResponse
 from pydantic import BaseModel
+
 from app.models.base_models import APIResponse
 from app.models.sql_announcement import Base
+
 
 def paginate(params: BaseModel, api_response: APIResponse, items: Base):
     total = items.count()
