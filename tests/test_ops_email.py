@@ -9,6 +9,7 @@ import pytest
 from app.main import app
 
 
+@pytest.mark.skip()
 class TestWriteEmails():
     post_api = '/v1/email/'
     app = TestClient(app)
