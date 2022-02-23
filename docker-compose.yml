@@ -15,10 +15,10 @@ services:
       RDS_USER: postgres
       RDS_PWD: postgres
       RDS_HOST: db
-      RDS_PORT: 15432
+      RDS_PORT: 5432
       NOTIFICATIONS_SCHEMA: notifications
       ANNOUNCEMENTS_SCHEMA: announcements
-      SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@db:15432/notifications
+      SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@db:5432/notifications
     volumes:
     - .:/usr/src/app
     depends_on:
