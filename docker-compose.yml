@@ -18,7 +18,7 @@ services:
       RDS_PORT: 5432
       NOTIFICATIONS_SCHEMA: notifications
       ANNOUNCEMENTS_SCHEMA: announcements
-      SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@db:5432/notifications
+      SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@db:15432/notifications
     volumes:
     - .:/usr/src/app
     depends_on:
@@ -42,7 +42,7 @@ services:
   db:
     image: 'postgres:12-alpine'
     ports:
-      - 5432:5432
+      - 15432:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
