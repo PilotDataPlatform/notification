@@ -1,15 +1,20 @@
-from datetime import datetime, timezone
-from fastapi import APIRouter, Depends
+from datetime import datetime
+from datetime import timezone
+
+from fastapi import APIRouter
+from fastapi import Depends
 from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
+from logger import LoggerFactory
+
 from app.models.base_models import EAPIResponseCode
-from app.models.models_notification import POSTNotification
-from app.models.models_notification import POSTNotificationResponse
-from app.models.models_notification import GETNotification
-from app.models.models_notification import GETNotifications
-from app.models.models_notification import GETNotificationResponse
 from app.models.models_notification import DELETENotification
 from app.models.models_notification import DELETENotificationResponse
+from app.models.models_notification import GETNotification
+from app.models.models_notification import GETNotificationResponse
+from app.models.models_notification import GETNotifications
+from app.models.models_notification import POSTNotification
+from app.models.models_notification import POSTNotificationResponse
 from app.models.models_notification import PUTNotification
 from app.models.models_notification import PUTNotificationResponse
 from app.models.models_unsub import POSTUnsub
@@ -21,6 +26,7 @@ from app.routers.v1.router_utils import paginate
 router = APIRouter()
 routerBulk = APIRouter()
 routerUnsub = APIRouter()
+_logger = LoggerFactory('api_notification').get_logger()
 
 
 @cbv(router)
@@ -35,11 +41,12 @@ class APINotification:
             api_response.total = 1
             api_response.result = notification.first().to_dict()
         except Exception as e:
-            print(e)
-            api_response.set_error_msg(f'Could not get notification with id={params.id}')
+            readable_error = f'Could not get notification with id={params.id}'
+            _logger.exception(f'{readable_error}\n{e}')
+            api_response.set_error_msg(readable_error)
             api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
-    
+
     @router.post('/', response_model=POSTNotificationResponse, summary='Create new maintenance notification')
     async def create_notification(self, data: POSTNotification):
         api_response = POSTNotificationResponse()
@@ -57,7 +64,7 @@ class APINotification:
             'maintenance_date': data.detail.maintenance_date,
             'duration': data.detail.duration,
             'duration_unit': data.detail.duration_unit,
-            'created_date': str(datetime.now(timezone.utc))
+            'created_date': str(datetime.now(timezone.utc)),
         }
         notification = NotificationModel(**model_data)
         try:
@@ -66,11 +73,12 @@ class APINotification:
             db.session.refresh(notification)
             api_response.result = notification.to_dict()
         except Exception as e:
-            print(e)
-            api_response.set_error_msg('Failed to write to database')
+            readable_error = 'Failed to write to database'
+            _logger.exception(f'{readable_error}\n{e}')
+            api_response.set_error_msg(readable_error)
             api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
-    
+
     @router.put('/', response_model=PUTNotificationResponse, summary='Modify one maintenance notification by ID')
     async def modify_notification(self, id: int, data: PUTNotification):
         api_response = PUTNotificationResponse()
@@ -94,8 +102,9 @@ class APINotification:
             db.session.refresh(notification)
             api_response.result = notification.to_dict()
         except Exception as e:
-            print(e)
-            api_response.set_error_msg('Failed to write to database')
+            readable_error = 'Failed to write to database'
+            _logger.exception(f'{readable_error}\n{e}')
+            api_response.set_error_msg(readable_error)
             api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
 
@@ -107,10 +116,12 @@ class APINotification:
             db.session.delete(notification.first())
             db.session.commit()
         except Exception as e:
-            print(e)
-            api_response.set_error_msg('Failed to delete from database')
+            readable_error = 'Failed to delete from database'
+            _logger.exception(f'{readable_error}\n{e}')
+            api_response.set_error_msg(readable_error)
             api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
+
 
 @cbv(routerBulk)
 class APINotificationBulk:
@@ -120,7 +131,7 @@ class APINotificationBulk:
         notifications = db.session.query(NotificationModel).order_by(NotificationModel.created_date.desc())
         if not params.all:
             if not params.username:
-                api_response.error_msg = "Username must be provided if all is false"
+                api_response.error_msg = 'Username must be provided if all is false'
                 api_response.code = EAPIResponseCode.bad_request
                 return api_response.json_response()
             unsubs = db.session.query(UnsubscribedModel).filter_by(username=params.username).all()
@@ -134,13 +145,12 @@ class APINotificationBulk:
 
 @cbv(routerUnsub)
 class APINotificationUnsub:
-    @routerUnsub.post('/', response_model=POSTUnsubResponse, summary='Unsubscribe one user from one maintenance notification')
+    @routerUnsub.post(
+        '/', response_model=POSTUnsubResponse, summary='Unsubscribe one user from one maintenance notification'
+    )
     async def unsub_notification(self, data: POSTUnsub):
         api_response = POSTUnsubResponse()
-        model_data = {
-            'username': data.username,
-            'notification_id': data.notification_id
-        }
+        model_data = {'username': data.username, 'notification_id': data.notification_id}
         unsub = UnsubscribedModel(**model_data)
         try:
             db.session.add(unsub)
@@ -148,7 +158,8 @@ class APINotificationUnsub:
             db.session.refresh(unsub)
             api_response.result = unsub.to_dict()
         except Exception as e:
-            print(e)
-            api_response.set_error_msg('Failed to write to database')
+            readable_error = 'Failed to write to database'
+            _logger.exception(f'{readable_error}\n{e}')
+            api_response.set_error_msg(readable_error)
             api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()

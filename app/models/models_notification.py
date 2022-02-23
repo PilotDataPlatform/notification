@@ -1,27 +1,33 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
+
+from pydantic import BaseModel
+from pydantic import Field
+
 from .base_models import APIResponse
 
 
 # GET
 class GETNotificationResponse(APIResponse):
-    result: dict = Field({}, example={
+    result: dict = Field(
+        {},
+        example={
             'code': 200,
             'error_msg': '',
             'page': 0,
             'total': 1,
             'num_of_pages': 1,
             'result': {
-                    'type': 'maintenance',
-                    'message': 'Notification response message',
-                    'created_date': '2022-01-01 12:00:00.000000',
-                    'detail': {
-                        'maintenance_date': '2022-01-01 12:00:00.000000',
-                        'duration': '3',
-                        'duration_unit': 'h',
-                }
-            }
-    })
+                'type': 'maintenance',
+                'message': 'Notification response message',
+                'created_date': '2022-01-01 12:00:00.000000',
+                'detail': {
+                    'maintenance_date': '2022-01-01 12:00:00.000000',
+                    'duration': '3',
+                    'duration_unit': 'h',
+                },
+            },
+        },
+    )
 
 
 class GETNotifications(BaseModel):
@@ -63,14 +69,17 @@ class PUTNotification(POSTNotification):
 
 # DELETE
 class DELETENotificationResponse(APIResponse):
-    result: dict = Field({}, example={
+    result: dict = Field(
+        {},
+        example={
             'code': 200,
             'error_msg': '',
             'result': {
-                    'id': 1,
-                    'status': 'success',
-            }
-    })
+                'id': 1,
+                'status': 'success',
+            },
+        },
+    )
 
 
 class DELETENotification(BaseModel):

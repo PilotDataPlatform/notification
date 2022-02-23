@@ -1,13 +1,11 @@
-"""Add created_date to system_maintenance
+"""Add created_date to system_maintenance.
 
 Revision ID: e6fcf3ec5303
 Revises: 49fbb2de7523
 Create Date: 2022-01-24 13:01:15.062858
-
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'e6fcf3ec5303'
