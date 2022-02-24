@@ -46,3 +46,4 @@ CONFIG_CENTER_ENABLED=true VAULT_URL=[...] VAULT_CRT=[...] VAULT_TOKEN=[...] poe
 
 ## Usage
 Swagger API documentation can be found locally at `http://localhost:5065/v1/api-doc`.
+
