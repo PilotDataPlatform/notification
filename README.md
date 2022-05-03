@@ -16,7 +16,8 @@ Manages emails and system maintenance notifications.
 
 ### Installation
 #### Using Docker
-1. Run Docker compose with environment variables.
+1. Add environment variables into `.env`.
+2. Run Docker compose with environment variables.
 
        docker-compose up
 

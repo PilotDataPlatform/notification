@@ -16,12 +16,11 @@
 FROM python:3.7-buster
 
 WORKDIR /usr/src/app
+COPY . .
 
 RUN pip install --no-cache-dir poetry==1.1.12
-COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev --no-root --no-interaction
-COPY . .
-RUN chmod +x gunicorn_starter.sh
 
+RUN chmod +x gunicorn_starter.sh
 CMD ["./gunicorn_starter.sh"]
