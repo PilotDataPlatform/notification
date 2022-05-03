@@ -18,7 +18,7 @@ Manages emails and system maintenance notifications.
 #### Using Docker
 1. Run Docker compose with environment variables.
 
-       PIP_USERNAME=[...] PIP_PASSWORD=[...] docker-compose up
+       docker-compose up
 
 2. Find service locally at `http://localhost:5065/`.
 
@@ -26,11 +26,11 @@ Manages emails and system maintenance notifications.
 1. Install [Poetry](https://python-poetry.org/docs/#installation).
 2. Configure access to internal package registry.
 
-       poetry config http-basic.pilot ${PIP_USERNAME} ${PIP_PASSWORD}
+       poetry config virtualenvs.create false
 
 3. Install dependencies.
 
-       poetry install
+       poetry install --no-dev --no-root --no-interaction
 
 4. Add environment variables into `.env`.
 5. Run application.
@@ -38,14 +38,6 @@ Manages emails and system maintenance notifications.
        poetry run python run.py
 
 6. Find service locally at `http://localhost:5065/`.
-
-Example:
-
-```
-poetry install
-poetry run python run.py
-CONFIG_CENTER_ENABLED=true VAULT_URL=[...] VAULT_CRT=[...] VAULT_TOKEN=[...] poetry run python run.py
-```
 
 ## Usage
 Swagger API documentation can be found locally at `http://localhost:5065/v1/api-doc`.
