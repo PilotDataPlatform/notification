@@ -30,7 +30,6 @@ markupsafe = "1.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "6.0.2"
-coverage = "5.3"
 requests = "2.24.0"
 pytest-cov = "^3.0.0"
 pytest-env = "0.6.2"
