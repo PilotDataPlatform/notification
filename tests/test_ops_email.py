@@ -40,8 +40,7 @@ class TestWriteEmails():
         payload = {
             'sender': None,
             'receiver': self.TEST_EMAIL_RECEIVER,
-            'message': 'test email'
-            }
+            'message': 'test email'}
         response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 422
         assert b'none is not an allowed value' in response.content
@@ -50,8 +49,7 @@ class TestWriteEmails():
         payload = {
             'sender': self.TEST_EMAIL_SENDER,
             'receiver': None,
-            'message': 'test email'
-            }
+            'message': 'test email'}
         response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 422
         assert b'none is not an allowed value' in response.content

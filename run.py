@@ -26,5 +26,4 @@ if __name__ == '__main__':
         host=ConfigClass.host,
         port=ConfigClass.port,
         log_level='info',
-        reload=True
-        )
+        reload=True)

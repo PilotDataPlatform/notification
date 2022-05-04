@@ -31,6 +31,7 @@ from app.models.models_notification import GETNotifications
 from app.models.models_notification import POSTNotification
 from app.models.models_notification import POSTNotificationResponse
 from app.models.models_notification import PUTNotification
+from app.models.models_notification import PUTNotificationParams
 from app.models.models_notification import PUTNotificationResponse
 from app.models.models_unsub import POSTUnsub
 from app.models.models_unsub import POSTUnsubResponse
@@ -83,7 +84,7 @@ class APINotification:
             api_response.set_code(EAPIResponseCode.bad_request)
             return api_response.json_response()
         model_data = {
-            'type': data.type,
+            'notification_type': data.type,
             'message': data.message,
             'maintenance_date': data.detail.maintenance_date,
             'duration': data.detail.duration,
@@ -107,7 +108,11 @@ class APINotification:
         '/',
         response_model=PUTNotificationResponse,
         summary='Modify one maintenance notification by ID')
-    async def modify_notification(self, id: int, data: PUTNotification):
+    async def modify_notification(
+        self,
+        data: PUTNotification,
+        params: PUTNotificationParams = Depends(PUTNotificationParams)
+    ):
         api_response = PUTNotificationResponse()
         if len(data.message) > 250:
             api_response.set_error_msg('Message too long')
@@ -118,8 +123,9 @@ class APINotification:
             api_response.set_code(EAPIResponseCode.bad_request)
             return api_response.json_response()
         try:
+            notification_id = params.id
             notification = db.session.query(NotificationModel).filter_by(
-                id=id).first()
+                id=notification_id).first()
             notification.type = data.type
             notification.message = data.message
             notification.created_date = str(datetime.now(timezone.utc))
@@ -198,8 +204,7 @@ class APINotificationUnsub:
         api_response = POSTUnsubResponse()
         model_data = {
             'username': data.username,
-            'notification_id': data.notification_id
-            }
+            'notification_id': data.notification_id}
         unsub = UnsubscribedModel(**model_data)
         try:
             db.session.add(unsub)

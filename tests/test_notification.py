@@ -30,8 +30,7 @@ class TestNotification():
             'detail': {
                 'maintenance_date': '2022-01-20T15:20:13.955Z',
                 'duration': 1,
-                'duration_unit': 'h'
-                },
+                'duration_unit': 'h'},
         }
         response = test_client.post('/v1/notification/', json=payload)
         global notificationId
@@ -53,8 +52,7 @@ class TestNotification():
             'detail': {
                 'maintenance_date': '2022-01-20T15:20:13.955Z',
                 'duration': 1,
-                'duration_unit': 'h'
-                },
+                'duration_unit': 'h'},
         }
         response = test_client.put(
             '/v1/notification/',
@@ -100,8 +98,7 @@ class TestNotification():
             'detail': {
                 'maintenance_date': '2022-01-20T15:20:13.955Z',
                 'duration': 1,
-                'duration_unit': 'h'
-                },
+                'duration_unit': 'h'},
         }
         response = test_client.post('/v1/notification/', json=payload)
         assert response.status_code == 400
@@ -113,8 +110,7 @@ class TestNotification():
             'detail': {
                 'maintenance_date': '2022-01-20T15:20:13.955Z',
                 'duration': -1,
-                'duration_unit': 'h'
-                },
+                'duration_unit': 'h'},
         }
         response = test_client.post('/v1/notification/', json=payload)
         assert response.status_code == 400
@@ -134,14 +130,12 @@ class TestNotification():
             'detail': {
                 'maintenance_date': '2022-01-20T15:20:13.955Z',
                 'duration': 1,
-                'duration_unit': 'h'
-                },
+                'duration_unit': 'h'},
         }
         response = test_client.put(
             '/v1/notification/',
             params=params,
-            json=payload
-            )
+            json=payload)
         assert response.status_code == 400
 
     @pytest.mark.dependency(depends=['test_01'])
@@ -153,8 +147,7 @@ class TestNotification():
             'detail': {
                 'maintenance_date': '2022-01-20T15:20:13.955Z',
                 'duration': -1,
-                'duration_unit': 'h'
-                },
+                'duration_unit': 'h'},
         }
         response = test_client.put(
             '/v1/notification/',

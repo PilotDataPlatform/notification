@@ -82,6 +82,10 @@ class PUTNotification(POSTNotification):
     pass
 
 
+class PUTNotificationParams(BaseModel):
+    id: int
+
+
 # DELETE
 class DELETENotificationResponse(APIResponse):
     result: dict = Field(

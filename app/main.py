@@ -39,8 +39,7 @@ def create_app():
     )
     app.add_middleware(
         DBSessionMiddleware,
-        db_url=ConfigClass.SQLALCHEMY_DATABASE_URI
-        )
+        db_url=ConfigClass.SQLALCHEMY_DATABASE_URI)
 
     app.add_middleware(
         CORSMiddleware,
@@ -54,7 +53,6 @@ def create_app():
     # v1
     api_registry(app)
     if ConfigClass.OPEN_TELEMETRY_ENABLED:
-        print('Opentelemetry activated')
         instrument_app(app)
     return app
 
@@ -69,8 +67,7 @@ def instrument_app(app) -> None:
 
     jaeger_exporter = JaegerExporter(
         agent_host_name='127.0.0.1',
-        agent_port=6831
-        )
+        agent_port=6831)
 
     tracer_provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
 

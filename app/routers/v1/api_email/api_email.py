@@ -90,67 +90,25 @@ class WriteEmails:
     @router.post('/', response_model=POSTEmailResponse, summary='Send emails')
     async def post(self, data: POSTEmail):
         api_response = POSTEmailResponse()
-        templates = Jinja2Templates(directory='emails')
         text = data.message
         template = data.template
-
-        if text and template:
-            api_response.result = 'Please only set text or template, not both'
-            api_response.code = EAPIResponseCode.bad_request
+        code, result = validate_email_content(
+            text,
+            template,
+            data.template_kwargs)
+        if result:
+            api_response.result = result
+            api_response.code = code
             return api_response.json_response()
-
-        if not text and not template:
-            _logger.exception('Text or template is required')
-            api_response.result = 'Text or template is required'
-            api_response.code = EAPIResponseCode.bad_request
-            return api_response.json_response()
-
-        if template:
-            try:
-                template = templates.get_template(data.template)
-                text = template.render(data.template_kwargs)
-            except jinja2.exceptions.TemplateNotFound:
-                api_response.result = 'Template not found'
-                api_response.code = EAPIResponseCode.not_found
-                return api_response.json_response()
-
         attachments = []
         for file in data.attachments:
-            if ',' in file.get('data'):
-                attach_data = base64.b64decode(file.get('data').split(',')[1])
+            code, attach, attach = attach_data(file)
+            if code != EAPIResponseCode.success:
+                api_response.result = result
+                api_response.code = code
+                return api_response.json_response()
             else:
-                attach_data = base64.b64decode(file.get('data'))
-
-            # check if bigger to 2mb
-            if len(attach_data) > 2000000:
-                api_response.result = 'attachement to large'
-                api_response.code = EAPIResponseCode.to_large
-                return api_response.json_response()
-
-            filename = file.get('name')
-            if not allowed_file(filename):
-                api_response.result = 'File type not allowed'
-                api_response.code = EAPIResponseCode.bad_request
-                return api_response.json_response()
-
-            if attach_data and allowed_file(filename):
-                if is_image(filename):
-                    attach = MIMEImage(attach_data)
-                    attach.add_header(
-                        'Content-Disposition',
-                        'attachment',
-                        filename=filename)
-                else:
-                    attach = MIMEApplication(
-                        attach_data,
-                        _subtype='pdf',
-                        filename=filename)
-                    attach.add_header(
-                        'Content-Disposition',
-                        'attachment',
-                        filename=filename)
                 attachments.append(attach)
-
         if data.msg_type not in ['html', 'plain']:
             api_response.result = 'wrong email type'
             api_response.code = EAPIResponseCode.bad_request
@@ -191,3 +149,65 @@ class WriteEmails:
         _logger.info(f'Email sent successfully to {data.receiver}')
         api_response.result = 'Email sent successfully. '
         return api_response.json_response()
+
+
+def validate_email_content(text, template, template_kwargs):
+    templates = Jinja2Templates(directory='emails')
+    code = EAPIResponseCode.success
+    result = ''
+    if text and template:
+        result = 'Please only set text or template, not both'
+        code = EAPIResponseCode.bad_request
+    if not text and not template:
+        _logger.exception('Text or template is required')
+        result = 'Text or template is required'
+        code = EAPIResponseCode.bad_request
+    if template:
+        try:
+            template = templates.get_template(template)
+            text = template.render(template_kwargs)
+        except jinja2.exceptions.TemplateNotFound:
+            result = 'Template not found'
+            code = EAPIResponseCode.not_found
+    return code, result
+
+
+def attach_data(file):
+    code = EAPIResponseCode.success
+    result = ''
+    if ',' in file.get('data'):
+        attach_data = base64.b64decode(file.get('data').split(',')[1])
+    else:
+        attach_data = base64.b64decode(file.get('data'))
+
+    # check if bigger to 2mb
+    if len(attach_data) > 2000000:
+        result = 'attachement to large'
+        code = EAPIResponseCode.to_large
+        attach = None
+        return code, result, attach
+
+    filename = file.get('name')
+    if not allowed_file(filename):
+        result = 'File type not allowed'
+        code = EAPIResponseCode.bad_request
+        attach = None
+        return code, result, attach
+
+    if attach_data and allowed_file(filename):
+        if is_image(filename):
+            attach = MIMEImage(attach_data)
+            attach.add_header(
+                'Content-Disposition',
+                'attachment',
+                filename=filename)
+        else:
+            attach = MIMEApplication(
+                attach_data,
+                _subtype='pdf',
+                filename=filename)
+            attach.add_header(
+                'Content-Disposition',
+                'attachment',
+                filename=filename)
+        return code, result, attach

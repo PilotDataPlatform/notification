@@ -92,8 +92,7 @@ class Settings(BaseSettings):
                 env_settings,
                 load_vault_settings,
                 init_settings,
-                file_secret_settings
-                )
+                file_secret_settings)
 
 
 @lru_cache(1)
