@@ -16,11 +16,11 @@
 from datetime import datetime
 from datetime import timezone
 
+from common import LoggerFactory
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
-from common import LoggerFactory
 
 from app.models.base_models import EAPIResponseCode
 from app.models.models_notification import DELETENotification

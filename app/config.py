@@ -2,12 +2,12 @@ from functools import lru_cache
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Set
 
 from common import VaultClient
 from pydantic import BaseSettings
 from pydantic import Extra
-from typing import Optional
 
 
 class VaultConfig(BaseSettings):

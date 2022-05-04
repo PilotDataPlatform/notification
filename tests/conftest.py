@@ -2,14 +2,16 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.schema import CreateSchema, CreateTable
-from sqlalchemy_utils import create_database, database_exists
+from sqlalchemy.schema import CreateSchema
+from sqlalchemy.schema import CreateTable
+from sqlalchemy_utils import create_database
+from sqlalchemy_utils import database_exists
 from testcontainers.postgres import PostgresContainer
 
-from app.main import create_app
 from app.config import ConfigClass
-from app.models.sql_notification import NotificationModel
+from app.main import create_app
 from app.models.sql_announcement import AnnouncementModel
+from app.models.sql_notification import NotificationModel
 
 
 @pytest.fixture(scope='session', autouse=True)

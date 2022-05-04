@@ -16,7 +16,6 @@
 from json import loads
 import pytest
 
-
 notificationId = None
 
 

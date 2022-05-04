@@ -23,11 +23,11 @@ from email.mime.text import MIMEText
 from multiprocessing import Process
 
 import jinja2
+from common import LoggerFactory
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi_utils import cbv
-from common import LoggerFactory
 
 from app.config import ConfigClass
 from app.models.base_models import APIResponse
