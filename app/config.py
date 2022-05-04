@@ -7,7 +7,8 @@ from typing import Set
 from common import VaultClient
 from pydantic import BaseSettings
 from pydantic import Extra
-from typing import Any, Dict, Optional
+from typing import Optional
+
 
 class VaultConfig(BaseSettings):
     """Store vault related configuration."""
@@ -30,9 +31,11 @@ def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
     if not config.CONFIG_CENTER_ENABLED:
         return {}
 
-    client = VaultClient(config.VAULT_URL, config.VAULT_CRT, config.VAULT_TOKEN)
+    client = VaultClient(
+        config.VAULT_URL,
+        config.VAULT_CRT,
+        config.VAULT_TOKEN)
     return client.get_from_vault(config.APP_NAME)
-
 
 
 class Settings(BaseSettings):
@@ -65,9 +68,10 @@ class Settings(BaseSettings):
 
     def __init__(self):
         super().__init__()
-        self.SQLALCHEMY_DATABASE_URI = (
-            f'postgresql://{self.RDS_USER}:{self.RDS_PWD}@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}'
-        )
+        url = (
+            f'postgresql://{self.RDS_USER}:{self.RDS_PWD}'
+            f'@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}')
+        self.SQLALCHEMY_DATABASE_URI = (url)
         if self.postfix != '' and self.smtp_port:
             self.POSTFIX_URL = self.postfix
             self.POSTFIX_PORT = self.smtp_port
@@ -78,8 +82,18 @@ class Settings(BaseSettings):
         extra = Extra.allow
 
         @classmethod
-        def customise_sources(cls, init_settings, env_settings, file_secret_settings):
-            return env_settings, load_vault_settings, init_settings, file_secret_settings
+        def customise_sources(
+            cls,
+            init_settings,
+            env_settings,
+            file_secret_settings
+        ):
+            return (
+                env_settings,
+                load_vault_settings,
+                init_settings,
+                file_secret_settings
+                )
 
 
 @lru_cache(1)

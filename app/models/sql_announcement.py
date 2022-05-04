@@ -37,7 +37,10 @@ class AnnouncementModel(Base):
     date = Column(DateTime(), default=datetime.utcnow)
 
     __table_args__ = (
-        UniqueConstraint('project_code', 'version', name='project_code_version'),
+        UniqueConstraint(
+            'project_code',
+            'version',
+            name='project_code_version'),
         {'schema': ConfigClass.ANNOUNCEMENTS_SCHEMA},
     )
 
@@ -49,7 +52,9 @@ class AnnouncementModel(Base):
 
     def to_dict(self):
         result = {}
-        for field in ['id', 'project_code', 'content', 'version', 'date', 'publisher']:
+        for field in [
+            'id', 'project_code', 'content', 'version', 'date', 'publisher'
+        ]:
             if field == 'date':
                 result[field] = str(getattr(self, field))
             else:

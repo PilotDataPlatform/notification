@@ -21,14 +21,20 @@ def db():
         engine = create_engine(postgres_uri)
 
         from app.models.sql_notification import Base
-        CreateTable(NotificationModel.__table__).compile(dialect=postgresql.dialect())
-        if not engine.dialect.has_schema(engine, ConfigClass.NOTIFICATIONS_SCHEMA):
+        CreateTable(NotificationModel.__table__).compile(
+            dialect=postgresql.dialect())
+        notification_schema_exist = engine.dialect.has_schema(
+            engine, ConfigClass.NOTIFICATIONS_SCHEMA)
+        if not notification_schema_exist:
             engine.execute(CreateSchema(ConfigClass.NOTIFICATIONS_SCHEMA))
         Base.metadata.create_all(bind=engine)
 
         from app.models.sql_announcement import Base
-        CreateTable(AnnouncementModel.__table__).compile(dialect=postgresql.dialect())
-        if not engine.dialect.has_schema(engine, ConfigClass.ANNOUNCEMENTS_SCHEMA):
+        CreateTable(AnnouncementModel.__table__).compile(
+            dialect=postgresql.dialect())
+        announcement_schema_exist = engine.dialect.has_schema(
+            engine, ConfigClass.ANNOUNCEMENTS_SCHEMA)
+        if not announcement_schema_exist:
             engine.execute(CreateSchema(ConfigClass.ANNOUNCEMENTS_SCHEMA))
         Base.metadata.create_all(bind=engine)
         yield postgres

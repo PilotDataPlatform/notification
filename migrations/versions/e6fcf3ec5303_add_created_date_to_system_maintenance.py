@@ -30,8 +30,12 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('system_maintenance', sa.Column('created_date', sa.DateTime(), nullable=True), schema='notifications')
+    op.add_column(
+        'system_maintenance',
+        sa.Column('created_date', sa.DateTime(), nullable=True),
+        schema='notifications')
 
 
 def downgrade():
-    op.drop_column('system_maintenance', 'created_date', schema='notifications')
+    op.drop_column(
+        'system_maintenance', 'created_date', schema='notifications')

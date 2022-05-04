@@ -21,7 +21,8 @@ from app.models.sql_announcement import Base
 
 def paginate(params: BaseModel, api_response: APIResponse, items: Base):
     total = items.count()
-    items = items.limit(params.page_size).offset(params.page * params.page_size)
+    items = items.limit(params.page_size).offset(
+        params.page * params.page_size)
     items = items.all()
     results = []
     for item in items:

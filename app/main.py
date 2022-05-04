@@ -28,6 +28,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from .api_registry import api_registry
 from .config import ConfigClass
 
+
 def create_app():
     """Initialize and configure app."""
     app = FastAPI(
@@ -36,7 +37,10 @@ def create_app():
         docs_url='/v1/api-doc',
         version=ConfigClass.version,
     )
-    app.add_middleware(DBSessionMiddleware, db_url=ConfigClass.SQLALCHEMY_DATABASE_URI)
+    app.add_middleware(
+        DBSessionMiddleware,
+        db_url=ConfigClass.SQLALCHEMY_DATABASE_URI
+        )
 
     app.add_middleware(
         CORSMiddleware,
@@ -59,10 +63,14 @@ def create_app():
 def instrument_app(app) -> None:
     """Instrument the application with OpenTelemetry tracing."""
 
-    tracer_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: ConfigClass.APP_NAME}))
+    tracer_provider = TracerProvider(resource=Resource.create(
+        {SERVICE_NAME: ConfigClass.APP_NAME}))
     trace.set_tracer_provider(tracer_provider)
 
-    jaeger_exporter = JaegerExporter(agent_host_name='127.0.0.1', agent_port=6831)
+    jaeger_exporter = JaegerExporter(
+        agent_host_name='127.0.0.1',
+        agent_port=6831
+        )
 
     tracer_provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
 

@@ -37,13 +37,21 @@ class TestWriteEmails():
         assert response.status_code == 200
 
     def test_post_no_sender(self, test_client):
-        payload = {'sender': None, 'receiver': self.TEST_EMAIL_RECEIVER, 'message': 'test email'}
+        payload = {
+            'sender': None,
+            'receiver': self.TEST_EMAIL_RECEIVER,
+            'message': 'test email'
+            }
         response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 422
         assert b'none is not an allowed value' in response.content
 
     def test_post_no_receiver(self, test_client):
-        payload = {'sender': self.TEST_EMAIL_SENDER, 'receiver': None, 'message': 'test email'}
+        payload = {
+            'sender': self.TEST_EMAIL_SENDER,
+            'receiver': None,
+            'message': 'test email'
+            }
         response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 422
         assert b'none is not an allowed value' in response.content
@@ -114,7 +122,7 @@ class TestWriteEmails():
         }
         response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 500
-        assert response.content != None
+        assert response.content is not None
 
     @pytest.mark.skip('This test does not work with Jenkins')
     def test_error(self, test_client):
@@ -125,7 +133,7 @@ class TestWriteEmails():
         }
         response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 500
-        assert response.content != None
+        assert response.content is not None
 
     def test_send_email_with_png_attachment(self, test_client):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -140,7 +148,11 @@ class TestWriteEmails():
                 'message': 'test email',
                 'subject': 'test email',
                 'msg_type': 'plain',
-                'attachments': [{'name': png_path, 'data': base64.b64encode(img.read()).decode('utf-8')}],
+                'attachments': [
+                    {
+                        'name': png_path,
+                        'data': base64.b64encode(
+                            img.read()).decode('utf-8')}],
             }
             response = test_client.post(self.post_api, json=payload)
             assert response.status_code == 200
@@ -174,13 +186,27 @@ class TestWriteEmails():
                             'subject': 'test email',
                             'msg_type': 'plain',
                             'attachments': [
-                                {'name': pdf_path, 'data': base64.b64encode(img1.read()).decode('utf-8')},
-                                {'name': jpg_path, 'data': base64.b64encode(img2.read()).decode('utf-8')},
-                                {'name': jpeg_path, 'data': base64.b64encode(img3.read()).decode('utf-8')},
-                                {'name': gif_path, 'data': base64.b64encode(img4.read()).decode('utf-8')},
+                                {
+                                    'name': pdf_path,
+                                    'data': base64.b64encode(
+                                        img1.read()).decode('utf-8')},
+                                {
+                                    'name': jpg_path,
+                                    'data': base64.b64encode(
+                                        img2.read()).decode('utf-8')},
+                                {
+                                    'name': jpeg_path,
+                                    'data': base64.b64encode(
+                                        img3.read()).decode('utf-8')},
+                                {
+                                    'name': gif_path,
+                                    'data': base64.b64encode(
+                                        img4.read()).decode('utf-8')},
                             ],
                         }
-                        response = test_client.post(self.post_api, json=payload)
+                        response = test_client.post(
+                            self.post_api,
+                            json=payload)
                         assert response.status_code == 200
                         os.system('rm ' + pdf_path)
                         os.system('rm ' + jpg_path)
@@ -201,7 +227,10 @@ class TestWriteEmails():
                 'message': 'test email',
                 'subject': 'test email',
                 'msg_type': 'plain',
-                'attachments': [{'name': 'Testdateiäöüß1.xml', 'data': base64.b64encode(img.read()).decode('utf-8')}],
+                'attachments': [
+                    {
+                        'name': 'Testdateiäöüß1.xml',
+                        'data': base64.b64encode(img.read()).decode('utf-8')}],
             }
             response = test_client.post(self.post_api, json=payload)
             assert response.status_code == 400
@@ -225,7 +254,10 @@ class TestWriteEmails():
                 'subject': 'test email',
                 'msg_type': 'plain',
                 'attachments': [
-                    {'name': 'Testdateiäöüß_large.pdf', 'data': base64.b64encode(img.read()).decode('utf-8')}
+                    {
+                        'name': 'Testdateiäöüß_large.pdf',
+                        'data': base64.b64encode(img.read()).decode('utf-8')
+                    }
                 ],
             }
             response = test_client.post(self.post_api, json=payload)

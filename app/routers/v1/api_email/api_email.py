@@ -42,9 +42,13 @@ router = APIRouter()
 _logger = LoggerFactory('api_emails').get_logger()
 
 
-def send_emails(receivers, sender, subject, text, msg_type, attachments) -> JSONResponse:
+def send_emails(
+    receivers, sender, subject, text, msg_type, attachments
+) -> JSONResponse:
     try:
-        client = smtplib.SMTP(ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
+        client = smtplib.SMTP(
+            ConfigClass.POSTFIX_URL,
+            ConfigClass.POSTFIX_PORT)
         if ConfigClass.smtp_user and ConfigClass.smtp_pass:
             client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
         _logger.info('email server connection established')
@@ -69,7 +73,8 @@ def send_emails(receivers, sender, subject, text, msg_type, attachments) -> JSON
             msg.attach(MIMEText(text, 'html', 'utf-8'))
 
         try:
-            _logger.info(f"\nto: {to}\nfrom: {sender}\nsubject: {msg['Subject']}")
+            _logger.info(
+                f"\nto: {to}\nfrom: {sender}\nsubject: {msg['Subject']}")
             client.sendmail(sender, to, msg.as_string())
         except Exception as e:
             _logger.exception(f'Error when sending email to {to}, {e}')
@@ -131,10 +136,19 @@ class WriteEmails:
             if attach_data and allowed_file(filename):
                 if is_image(filename):
                     attach = MIMEImage(attach_data)
-                    attach.add_header('Content-Disposition', 'attachment', filename=filename)
+                    attach.add_header(
+                        'Content-Disposition',
+                        'attachment',
+                        filename=filename)
                 else:
-                    attach = MIMEApplication(attach_data, _subtype='pdf', filename=filename)
-                    attach.add_header('Content-Disposition', 'attachment', filename=filename)
+                    attach = MIMEApplication(
+                        attach_data,
+                        _subtype='pdf',
+                        filename=filename)
+                    attach.add_header(
+                        'Content-Disposition',
+                        'attachment',
+                        filename=filename)
                 attachments.append(attach)
 
         if data.msg_type not in ['html', 'plain']:
@@ -147,10 +161,12 @@ class WriteEmails:
             del log_data['attachments']
         _logger.info(f'payload: {log_data}')
         _logger.info(f'receiver: {data.receiver}')
-
-        # Open the SMTP connection just to test that it's working before doing the real sending in the background
+        # Open the SMTP connection just to test that
+        # it's working before doing the real sending in the background
         try:
-            client = smtplib.SMTP(ConfigClass.POSTFIX_URL, ConfigClass.POSTFIX_PORT)
+            client = smtplib.SMTP(
+                ConfigClass.POSTFIX_URL,
+                ConfigClass.POSTFIX_PORT)
             if ConfigClass.smtp_user and ConfigClass.smtp_pass:
                 client.login(ConfigClass.smtp_user, ConfigClass.smtp_pass)
             _logger.info('email server connection established')
@@ -162,7 +178,13 @@ class WriteEmails:
 
         p = Process(
             target=send_emails,
-            args=(data.receiver, data.sender, data.subject, text, data.msg_type, attachments),
+            args=(
+                data.receiver,
+                data.sender,
+                data.subject,
+                text,
+                data.msg_type,
+                attachments),
         )
         p.daemon = True
         p.start()

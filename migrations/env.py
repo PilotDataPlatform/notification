@@ -15,16 +15,13 @@
 
 import os
 import sys
-
-sys.path.append(os.getcwd())
-
 from logging.config import fileConfig
-
 from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from app.models.sql_announcement import Base
+
+sys.path.append(os.getcwd())
 
 base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(base_dir)
@@ -45,7 +42,9 @@ target_metadata = Base.metadata
 
 if not os.environ.get('SQLALCHEMY_DATABASE_URI'):
     raise Exception('Must set SQLALCHEMY_DATABASE_URI environment var')
-config.set_main_option('sqlalchemy.url', os.environ.get('SQLALCHEMY_DATABASE_URI'))
+config.set_main_option(
+    'sqlalchemy.url',
+    os.environ.get('SQLALCHEMY_DATABASE_URI'))
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -79,7 +78,8 @@ def run_migrations_offline():
 def run_migrations_online():
     """Run migrations in 'online' mode.
 
-    In this scenario we need to create an Engine and associate a connection with the context.
+    In this scenario we need to create an Engine and
+    associate a connection with the context.
     """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
@@ -88,7 +88,10 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata
+            )
 
         with context.begin_transaction():
             context.run_migrations()

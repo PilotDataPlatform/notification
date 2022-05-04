@@ -27,13 +27,17 @@ class TestNotification():
         payload = {
             'type': 'test_01',
             'message': 'Test message from post',
-            'detail': {'maintenance_date': '2022-01-20T15:20:13.955Z', 'duration': 1, 'duration_unit': 'h'},
+            'detail': {
+                'maintenance_date': '2022-01-20T15:20:13.955Z',
+                'duration': 1,
+                'duration_unit': 'h'
+                },
         }
         response = test_client.post('/v1/notification/', json=payload)
         global notificationId
         notificationId = loads(response.text)['result']['id']
         assert response.status_code == 200
-    
+
     @pytest.mark.dependency(depends=['test_01'])
     def test_02_get_notification(self, test_client):
         params = {'id': notificationId}
@@ -46,9 +50,16 @@ class TestNotification():
         payload = {
             'type': 'test_03',
             'message': 'Test message from put',
-            'detail': {'maintenance_date': '2022-01-20T15:20:13.955Z', 'duration': 1, 'duration_unit': 'h'},
+            'detail': {
+                'maintenance_date': '2022-01-20T15:20:13.955Z',
+                'duration': 1,
+                'duration_unit': 'h'
+                },
         }
-        response = test_client.put('/v1/notification/', params=params, json=payload)
+        response = test_client.put(
+            '/v1/notification/',
+            params=params,
+            json=payload)
         assert response.status_code == 200
 
     @pytest.mark.dependency(depends=['test_01'])
@@ -75,12 +86,22 @@ class TestNotification():
         params = {'id': '99999'}
         response = test_client.get('/v1/notification/', params=params)
         assert response.status_code == 400
-    
+
     def test_08_post_notification_message_too_long(self, test_client):
         payload = {
             'type': 'test_08',
-            'message': 'Test message from post with a long message. Rem omnis ea sit. Aliquam omnis tempora est aliquam illo laborum. Mollitia voluptatem deserunt dolorem sapiente ad fugit minima tenetur. Atque qui corporis rerum veritatis aut. Et consectetur aut corporis earum cumque inventore occaecati rerum.',
-            'detail': {'maintenance_date': '2022-01-20T15:20:13.955Z', 'duration': 1, 'duration_unit': 'h'},
+            'message': (
+                'Test message from post with a long message. '
+                'Rem omnis ea sit. Aliquam omnis tempora est aliquam illo '
+                'laborum. Mollitia voluptatem deserunt dolorem sapiente ad'
+                ' fugit minima tenetur. Atque qui corporis rerum veritatis '
+                'aut. Et consectetur aut corporis earum cumque inventore '
+                'occaecati rerum.'),
+            'detail': {
+                'maintenance_date': '2022-01-20T15:20:13.955Z',
+                'duration': 1,
+                'duration_unit': 'h'
+                },
         }
         response = test_client.post('/v1/notification/', json=payload)
         assert response.status_code == 400
@@ -89,7 +110,11 @@ class TestNotification():
         payload = {
             'type': 'test_09',
             'message': 'Test message from post with an invalid duration',
-            'detail': {'maintenance_date': '2022-01-20T15:20:13.955Z', 'duration': -1, 'duration_unit': 'h'},
+            'detail': {
+                'maintenance_date': '2022-01-20T15:20:13.955Z',
+                'duration': -1,
+                'duration_unit': 'h'
+                },
         }
         response = test_client.post('/v1/notification/', json=payload)
         assert response.status_code == 400
@@ -99,10 +124,24 @@ class TestNotification():
         params = {'id': notificationId}
         payload = {
             'type': 'test_10',
-            'message': 'Test message from put with a long message. Rem omnis ea sit. Aliquam omnis tempora est aliquam illo laborum. Mollitia voluptatem deserunt dolorem sapiente ad fugit minima tenetur. Atque qui corporis rerum veritatis aut. Et consectetur aut corporis earum cumque inventore occaecati rerum.',
-            'detail': {'maintenance_date': '2022-01-20T15:20:13.955Z', 'duration': 1, 'duration_unit': 'h'},
+            'message': (
+                'Test message from put with a long message. Rem omnis ea sit.'
+                ' Aliquam omnis tempora est aliquam illo laborum. Mollitia '
+                'voluptatem deserunt dolorem sapiente ad fugit minima '
+                'tenetur. Atque qui corporis rerum veritatis aut. Et '
+                'consectetur aut corporis earum cumque inventore'
+                ' occaecati rerum.'),
+            'detail': {
+                'maintenance_date': '2022-01-20T15:20:13.955Z',
+                'duration': 1,
+                'duration_unit': 'h'
+                },
         }
-        response = test_client.put('/v1/notification/', params=params, json=payload)
+        response = test_client.put(
+            '/v1/notification/',
+            params=params,
+            json=payload
+            )
         assert response.status_code == 400
 
     @pytest.mark.dependency(depends=['test_01'])
@@ -111,9 +150,16 @@ class TestNotification():
         payload = {
             'type': 'test_11',
             'message': 'Test message from put',
-            'detail': {'maintenance_date': '2022-01-20T15:20:13.955Z', 'duration': -1, 'duration_unit': 'h'},
+            'detail': {
+                'maintenance_date': '2022-01-20T15:20:13.955Z',
+                'duration': -1,
+                'duration_unit': 'h'
+                },
         }
-        response = test_client.put('/v1/notification/', params=params, json=payload)
+        response = test_client.put(
+            '/v1/notification/',
+            params=params,
+            json=payload)
         assert response.status_code == 400
 
     def test_12_get_notifications_no_username(self, test_client):

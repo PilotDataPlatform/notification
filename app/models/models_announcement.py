@@ -29,7 +29,11 @@ class GETAnnouncementResponse(APIResponse):
             'page': 0,
             'total': 1,
             'num_of_pages': 1,
-            'result': {'content': 'Hello World Again!', 'id': 1, 'project_code': 'hello', 'version': '2.0'},
+            'result': {
+                'content': 'Hello World Again!',
+                'id': 1,
+                'project_code': 'hello',
+                'version': '2.0'},
         },
     )
 
@@ -52,7 +56,11 @@ class POSTAnnouncementResponse(APIResponse):
             'page': 0,
             'total': 1,
             'num_of_pages': 1,
-            'result': {'content': 'Hello World Again!', 'id': 1, 'project_code': 'hello', 'version': '2.0'},
+            'result': {
+                'content': 'Hello World Again!',
+                'id': 1,
+                'project_code': 'hello',
+                'version': '2.0'},
         },
     )
 

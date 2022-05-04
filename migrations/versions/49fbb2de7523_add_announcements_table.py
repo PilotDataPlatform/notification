@@ -40,7 +40,10 @@ def upgrade():
         sa.Column('date', sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('id'),
-        sa.UniqueConstraint('project_code', 'version', name='project_code_version'),
+        sa.UniqueConstraint(
+            'project_code',
+            'version',
+            name='project_code_version'),
         schema='announcements',
     )
 

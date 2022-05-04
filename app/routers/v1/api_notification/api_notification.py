@@ -46,11 +46,17 @@ _logger = LoggerFactory('api_notification').get_logger()
 
 @cbv(router)
 class APINotification:
-    @router.get('/', response_model=GETNotificationResponse, summary='Query one maintenance notification by ID')
-    async def get_notification(self, params: GETNotification = Depends(GETNotification)):
+    @router.get(
+        '/',
+        response_model=GETNotificationResponse,
+        summary='Query one maintenance notification by ID')
+    async def get_notification(
+        self, params: GETNotification = Depends(GETNotification)
+    ):
         try:
             api_response = GETNotificationResponse()
-            notification = db.session.query(NotificationModel).filter_by(id=params.id)
+            notification = db.session.query(NotificationModel).filter_by(
+                id=params.id)
             api_response.page = 0
             api_response.num_of_pages = 1
             api_response.total = 1
@@ -62,7 +68,10 @@ class APINotification:
             api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
 
-    @router.post('/', response_model=POSTNotificationResponse, summary='Create new maintenance notification')
+    @router.post(
+        '/',
+        response_model=POSTNotificationResponse,
+        summary='Create new maintenance notification')
     async def create_notification(self, data: POSTNotification):
         api_response = POSTNotificationResponse()
         if len(data.message) > 250:
@@ -94,7 +103,10 @@ class APINotification:
             api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
 
-    @router.put('/', response_model=PUTNotificationResponse, summary='Modify one maintenance notification by ID')
+    @router.put(
+        '/',
+        response_model=PUTNotificationResponse,
+        summary='Modify one maintenance notification by ID')
     async def modify_notification(self, id: int, data: PUTNotification):
         api_response = PUTNotificationResponse()
         if len(data.message) > 250:
@@ -106,7 +118,8 @@ class APINotification:
             api_response.set_code(EAPIResponseCode.bad_request)
             return api_response.json_response()
         try:
-            notification = db.session.query(NotificationModel).filter_by(id=id).first()
+            notification = db.session.query(NotificationModel).filter_by(
+                id=id).first()
             notification.type = data.type
             notification.message = data.message
             notification.created_date = str(datetime.now(timezone.utc))
@@ -123,11 +136,17 @@ class APINotification:
             api_response.set_code(EAPIResponseCode.bad_request)
         return api_response.json_response()
 
-    @router.delete('/', response_model=DELETENotificationResponse, summary='Delete one maintenance notification by ID')
-    async def delete_notification(self, params: DELETENotification = Depends(DELETENotification)):
+    @router.delete(
+        '/',
+        response_model=DELETENotificationResponse,
+        summary='Delete one maintenance notification by ID')
+    async def delete_notification(
+        self, params: DELETENotification = Depends(DELETENotification)
+    ):
         api_response = DELETENotificationResponse()
         try:
-            notification = db.session.query(NotificationModel).filter_by(id=params.id)
+            notification = db.session.query(NotificationModel).filter_by(
+                id=params.id)
             db.session.delete(notification.first())
             db.session.commit()
         except Exception as e:
@@ -140,20 +159,30 @@ class APINotification:
 
 @cbv(routerBulk)
 class APINotificationBulk:
-    @routerBulk.get('/', response_model=GETNotificationResponse, summary='Query many maintenance notifications')
-    async def get_all_notifications(self, params: GETNotifications = Depends(GETNotifications)):
+    @routerBulk.get(
+        '/',
+        response_model=GETNotificationResponse,
+        summary='Query many maintenance notifications')
+    async def get_all_notifications(
+        self, params: GETNotifications = Depends(GETNotifications)
+    ):
         api_response = GETNotificationResponse()
-        notifications = db.session.query(NotificationModel).order_by(NotificationModel.created_date.desc())
+        notifications = db.session.query(
+            NotificationModel).order_by(NotificationModel.created_date.desc())
         if not params.all:
             if not params.username:
-                api_response.error_msg = 'Username must be provided if all is false'
+                api_response.error_msg = (
+                    'Username must be provided '
+                    'if all is false')
                 api_response.code = EAPIResponseCode.bad_request
                 return api_response.json_response()
-            unsubs = db.session.query(UnsubscribedModel).filter_by(username=params.username).all()
+            unsubs = db.session.query(UnsubscribedModel).filter_by(
+                username=params.username).all()
             unsubNotificationIds = []
             for unsub in unsubs:
                 unsubNotificationIds.append(unsub.notification_id)
-            notifications = notifications.filter(NotificationModel.id.not_in(unsubNotificationIds))
+            notifications = notifications.filter(
+                NotificationModel.id.not_in(unsubNotificationIds))
         paginate(params, api_response, notifications)
         return api_response.json_response()
 
@@ -161,11 +190,16 @@ class APINotificationBulk:
 @cbv(routerUnsub)
 class APINotificationUnsub:
     @routerUnsub.post(
-        '/', response_model=POSTUnsubResponse, summary='Unsubscribe one user from one maintenance notification'
+        '/',
+        response_model=POSTUnsubResponse,
+        summary='Unsubscribe one user from one maintenance notification'
     )
     async def unsub_notification(self, data: POSTUnsub):
         api_response = POSTUnsubResponse()
-        model_data = {'username': data.username, 'notification_id': data.notification_id}
+        model_data = {
+            'username': data.username,
+            'notification_id': data.notification_id
+            }
         unsub = UnsubscribedModel(**model_data)
         try:
             db.session.add(unsub)

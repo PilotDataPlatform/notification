@@ -36,7 +36,10 @@ class NotificationModel(Base):
 
     __table_args__ = ({'schema': ConfigClass.NOTIFICATIONS_SCHEMA},)
 
-    def __init__(self, type, message, maintenance_date, duration, duration_unit, created_date):
+    def __init__(
+        self, type, message, maintenance_date, duration,
+        duration_unit, created_date
+    ):
         self.type = type
         self.message = message
         self.maintenance_date = maintenance_date
@@ -51,7 +54,8 @@ class NotificationModel(Base):
             'message': self.message,
             'created_date': self.created_date.strftime('%Y-%m-%dT%H:%M:%S'),
             'detail': {
-                'maintenance_date': self.maintenance_date.strftime('%Y-%m-%dT%H:%M:%S'),
+                'maintenance_date': self.maintenance_date.strftime(
+                    '%Y-%m-%dT%H:%M:%S'),
                 'duration': self.duration,
                 'duration_unit': self.duration_unit,
             },
@@ -71,4 +75,8 @@ class UnsubscribedModel(Base):
         self.notification_id = notification_id
 
     def to_dict(self):
-        return {'id': self.id, 'username': self.username, 'notification_id': self.notification_id}
+        return {
+            'id': self.id,
+            'username': self.username,
+            'notification_id': self.notification_id
+            }
