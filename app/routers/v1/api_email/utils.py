@@ -34,7 +34,6 @@ def is_image(filename):
         '.', 1)[1].lower() in ConfigClass.IMAGE_EXTENSIONS
 
 
-
 def validate_email_content(text, template, template_kwargs):
     templates = Jinja2Templates(directory='emails')
     code = EAPIResponseCode.success
