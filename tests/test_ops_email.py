@@ -17,52 +17,47 @@ import base64
 import os
 import platform
 from os import path
-
-from fastapi.testclient import TestClient
 import pytest
-
-from app.main import app
 
 
 @pytest.mark.skip()
 class TestWriteEmails():
     post_api = '/v1/email/'
-    app = TestClient(app)
     TEST_EMAIL_SENDER = 'sender@test.com'
     TEST_EMAIL_RECEIVER = 'receiver@test.com'
     TEST_EMAIL_RECEIVER_2 = 'receiver2@test.com'
 
-    def test_post_correct(self):
+    def test_post_correct(self, test_client):
         payload = {
             'sender': self.TEST_EMAIL_SENDER,
             'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'Test email contents',
         }
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 200
 
-    def test_post_no_sender(self):
+    def test_post_no_sender(self, test_client):
         payload = {'sender': None, 'receiver': self.TEST_EMAIL_RECEIVER, 'message': 'test email'}
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 422
         assert b'none is not an allowed value' in response.content
 
-    def test_post_no_receiver(self):
+    def test_post_no_receiver(self, test_client):
         payload = {'sender': self.TEST_EMAIL_SENDER, 'receiver': None, 'message': 'test email'}
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 422
         assert b'none is not an allowed value' in response.content
 
-    def test_post_no_message(self):
+    def test_post_no_message(self, test_client):
         payload = {
             'sender': self.TEST_EMAIL_SENDER,
             'receiver': [self.TEST_EMAIL_RECEIVER],
         }
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 400
         assert b'Text or template is required' in response.content
 
-    def test_html_email(self):
+    def test_html_email(self, test_client):
         html_msg = '''<!DOCTYPE html> \
                         <body>\
                         <h4>Dear member,</h4>\
@@ -74,36 +69,36 @@ class TestWriteEmails():
             'message': html_msg,
             'msg_type': 'html',
         }
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 200
 
-    def test_wrong_message(self):
+    def test_wrong_message(self, test_client):
         payload = {
             'sender': self.TEST_EMAIL_SENDER,
             'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'test message',
             'msg_type': 'csv',
         }
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 400
         assert b'wrong email type' in response.content
 
-    def test_multiple_receiver_list(self):
+    def test_multiple_receiver_list(self, test_client):
         payload = {
             'sender': self.TEST_EMAIL_SENDER,
             'receiver': [self.TEST_EMAIL_RECEIVER, self.TEST_EMAIL_RECEIVER_2],
             'message': 'test email',
         }
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 200
 
-    def test_list_receiver(self):
+    def test_list_receiver(self, test_client):
         payload = {
             'sender': self.TEST_EMAIL_SENDER,
             'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 200
 
     @pytest.mark.skip('Changing logging in progress')
@@ -111,28 +106,28 @@ class TestWriteEmails():
         self.assertTrue(path.exists('./logs'))
 
     @pytest.mark.skip('Not working with Pytest yet')
-    def test_smtp_error(self):
+    def test_smtp_error(self, test_client):
         payload = {
             'sender': self.TEST_EMAIL_SENDER,
             'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 500
         assert response.content != None
 
     @pytest.mark.skip('This test does not work with Jenkins')
-    def test_error(self):
+    def test_error(self, test_client):
         payload = {
             'sender': self.TEST_EMAIL_SENDER,
             'receiver': [self.TEST_EMAIL_RECEIVER],
             'message': 'test email',
         }
-        response = self.app.post(self.post_api, json=payload)
+        response = test_client.post(self.post_api, json=payload)
         assert response.status_code == 500
         assert response.content != None
 
-    def test_send_email_with_png_attachment(self):
+    def test_send_email_with_png_attachment(self, test_client):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         png_path = dir_path + '/Testdateiäöüß1.png'
         if not path.isfile(png_path):
@@ -147,11 +142,11 @@ class TestWriteEmails():
                 'msg_type': 'plain',
                 'attachments': [{'name': png_path, 'data': base64.b64encode(img.read()).decode('utf-8')}],
             }
-            response = self.app.post(self.post_api, json=payload)
+            response = test_client.post(self.post_api, json=payload)
             assert response.status_code == 200
             os.system('rm ' + png_path)
 
-    def test_send_email_with_multiple_attachments(self):
+    def test_send_email_with_multiple_attachments(self, test_client):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         pdf_path = dir_path + '/Testdateiäöüß2.pdf'
         jpg_path = dir_path + '/Testdateiäöüß3.jpg'
@@ -185,14 +180,14 @@ class TestWriteEmails():
                                 {'name': gif_path, 'data': base64.b64encode(img4.read()).decode('utf-8')},
                             ],
                         }
-                        response = self.app.post(self.post_api, json=payload)
+                        response = test_client.post(self.post_api, json=payload)
                         assert response.status_code == 200
                         os.system('rm ' + pdf_path)
                         os.system('rm ' + jpg_path)
                         os.system('rm ' + jpeg_path)
                         os.system('rm ' + gif_path)
 
-    def test_send_email_with_unsupport_attachment(self):
+    def test_send_email_with_unsupport_attachment(self, test_client):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         xml_path = dir_path + '/Testdateiäöüß1.xml'
 
@@ -208,11 +203,11 @@ class TestWriteEmails():
                 'msg_type': 'plain',
                 'attachments': [{'name': 'Testdateiäöüß1.xml', 'data': base64.b64encode(img.read()).decode('utf-8')}],
             }
-            response = self.app.post(self.post_api, json=payload)
+            response = test_client.post(self.post_api, json=payload)
             assert response.status_code == 400
             os.system('rm ' + xml_path)
 
-    def test_send_email_with_large_attachment(self):
+    def test_send_email_with_large_attachment(self, test_client):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         large_file_path = dir_path + '/Testdateiäöüß_large.pdf'
 
@@ -233,6 +228,6 @@ class TestWriteEmails():
                     {'name': 'Testdateiäöüß_large.pdf', 'data': base64.b64encode(img.read()).decode('utf-8')}
                 ],
             }
-            response = self.app.post(self.post_api, json=payload)
+            response = test_client.post(self.post_api, json=payload)
             assert response.status_code == 413
             os.system('rm ' + large_file_path)

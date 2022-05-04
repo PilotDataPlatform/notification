@@ -28,25 +28,31 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from .api_registry import api_registry
 from .config import ConfigClass
 
-app = FastAPI(
-    title='Notification Service',
-    description='Service for notifications',
-    docs_url='/v1/api-doc',
-    version=ConfigClass.version,
-)
-app.add_middleware(DBSessionMiddleware, db_url=ConfigClass.SQLALCHEMY_DATABASE_URI)
+def create_app():
+    """Initialize and configure app."""
+    app = FastAPI(
+        title='Notification Service',
+        description='Service for notifications',
+        docs_url='/v1/api-doc',
+        version=ConfigClass.version,
+    )
+    app.add_middleware(DBSessionMiddleware, db_url=ConfigClass.SQLALCHEMY_DATABASE_URI)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins='*',
-    allow_credentials=True,
-    allow_methods=['*'],
-    allow_headers=['*'],
-)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins='*',
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*'],
+    )
 
-# API registry
-# v1
-api_registry(app)
+    # API registry
+    # v1
+    api_registry(app)
+    if ConfigClass.OPEN_TELEMETRY_ENABLED:
+        print('Opentelemetry activated')
+        instrument_app(app)
+    return app
 
 
 # Implement opentelemetry tracing
@@ -62,8 +68,3 @@ def instrument_app(app) -> None:
 
     FastAPIInstrumentor.instrument_app(app)
     RequestsInstrumentor().instrument()
-
-
-if ConfigClass.OPEN_TELEMETRY_ENABLED:
-    print('Opentelemetry activated')
-    instrument_app(app)

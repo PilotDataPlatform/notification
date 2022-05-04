@@ -1,18 +1,3 @@
-# Copyright (C) 2022 Indoc Research
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 from functools import lru_cache
 from typing import Any
 from typing import Dict
@@ -22,23 +7,32 @@ from typing import Set
 from common import VaultClient
 from pydantic import BaseSettings
 from pydantic import Extra
-from starlette.config import Config
+from typing import Any, Dict, Optional
 
-config = Config('.env')
-SRV_NAMESPACE = config('APP_NAME', cast=str, default='service_notification')
-CONFIG_CENTER_ENABLED = config('CONFIG_CENTER_ENABLED', cast=str, default='false')
+class VaultConfig(BaseSettings):
+    """Store vault related configuration."""
+
+    APP_NAME: str = 'service_notification'
+    CONFIG_CENTER_ENABLED: bool = False
+
+    VAULT_URL: Optional[str]
+    VAULT_CRT: Optional[str]
+    VAULT_TOKEN: Optional[str]
+
+    class Config:
+        env_file = '.env'
+        env_file_encoding = 'utf-8'
 
 
 def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
-    if CONFIG_CENTER_ENABLED == 'false':
+    config = VaultConfig()
+
+    if not config.CONFIG_CENTER_ENABLED:
         return {}
-    else:
-        return vault_factory()
 
+    client = VaultClient(config.VAULT_URL, config.VAULT_CRT, config.VAULT_TOKEN)
+    return client.get_from_vault(config.APP_NAME)
 
-def vault_factory() -> dict:
-    vc = VaultClient(config('VAULT_URL'), config('VAULT_CRT'), config('VAULT_TOKEN'))
-    return vc.get_from_vault(SRV_NAMESPACE)
 
 
 class Settings(BaseSettings):
