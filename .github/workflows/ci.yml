@@ -81,10 +81,13 @@ jobs:
       with:
         path: .venv
         key: venv-${{ hashFiles('**/poetry.lock') }}
+    - name: check package
+      run: |
+        pip freeze | grep pilot-platform-common
     - name: Run tests
       run: |
         source .venv/bin/activate
-        PYTHONPATH=. poetry run pytest -vvv --cov=app --cov-report term-missing --cov-report=xml --disable-warnings
+        PYTHONPATH=. pytest -vvv --cov=app --cov-report term-missing --cov-report=xml --disable-warnings
     - name: Upload coverage
       uses: codecov/codecov-action@v1
       with:
