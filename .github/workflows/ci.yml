@@ -81,6 +81,9 @@ jobs:
       with:
         path: .venv
         key: venv-${{ hashFiles('**/poetry.lock') }}
+    - name: check package
+      run: |
+        pip freeze | grep pilot-platform-common
     - name: Run tests
       run: |
         source .venv/bin/activate
