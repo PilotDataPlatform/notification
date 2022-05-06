@@ -34,7 +34,7 @@ jobs:
         run: |
           poetry env info
           source /home/runner/.local/venv/bin/activate
-          ip3 install pre_commit
+          pip3 install pre_commit
           python3 -m pre_commit install
       # Load cached env
       - name: load cached env
