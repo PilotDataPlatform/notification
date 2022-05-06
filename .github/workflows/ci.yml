@@ -28,6 +28,12 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
+      - name: Install pre-commit
+        run: |
+          source .venv/bin/activate
+          export PATH=$PATH:/root/.local/bin
+          pip3 install pre_commit
+          python3 -m pre_commit install
       # Load cached env
       - name: load cached env
         id: cached-poetry-dependencies
@@ -41,12 +47,6 @@ jobs:
         run: |
           pip install -U pip
           poetry install --no-interaction --no-root
-      - name: Install pre-commit
-        run: |
-          source .venv/bin/activate
-          export PATH=$PATH:/root/.local/bin
-          pip3 install pre_commit
-          python3 -m pre_commit install
   linter:
     needs: build
     runs-on: ubuntu-20.04
