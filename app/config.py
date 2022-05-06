@@ -2,28 +2,40 @@ from functools import lru_cache
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Set
 
 from common import VaultClient
 from pydantic import BaseSettings
 from pydantic import Extra
-from starlette.config import Config
 
-config = Config('.env')
-SRV_NAMESPACE = config("APP_NAME", cast=str, default="service_notification")
-CONFIG_CENTER_ENABLED = config("CONFIG_CENTER_ENABLED", cast=str, default="false")
+
+class VaultConfig(BaseSettings):
+    """Store vault related configuration."""
+
+    APP_NAME: str = 'service_notification'
+    CONFIG_CENTER_ENABLED: bool = False
+
+    VAULT_URL: Optional[str]
+    VAULT_CRT: Optional[str]
+    VAULT_TOKEN: Optional[str]
+
+    class Config:
+        env_file = '.env'
+        env_file_encoding = 'utf-8'
 
 
 def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
-    if CONFIG_CENTER_ENABLED == "false":
+    config = VaultConfig()
+
+    if not config.CONFIG_CENTER_ENABLED:
         return {}
-    else:
-        return vault_factory()
 
-
-def vault_factory() -> dict:
-    vc = VaultClient(config('VAULT_URL'), config('VAULT_CRT'), config('VAULT_TOKEN'))
-    return vc.get_from_vault(SRV_NAMESPACE)
+    client = VaultClient(
+        config.VAULT_URL,
+        config.VAULT_CRT,
+        config.VAULT_TOKEN)
+    return client.get_from_vault(config.APP_NAME)
 
 
 class Settings(BaseSettings):
@@ -31,15 +43,15 @@ class Settings(BaseSettings):
 
     APP_NAME: str = 'service_notification'
     port: int = 5065
-    host: str = "0.0.0.0"
-    namespace: str = ""
-    env: str = "test"
+    host: str = '0.0.0.0'
+    namespace: str = ''
+    env: str = 'test'
     OPEN_TELEMETRY_ENABLED: bool = False
-    API_MODULES: List = ["service_email"]
-    postfix: str = ""
-    smtp_user: str = ""
-    smtp_pass: str = ""
-    smtp_port: str = ""
+    API_MODULES: List = ['service_email']
+    postfix: str = ''
+    smtp_user: str = ''
+    smtp_pass: str = ''
+    smtp_port: str = ''
     POSTFIX_URL: str
     POSTFIX_PORT: str
     ALLOWED_EXTENSIONS: Set[str] = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -51,15 +63,15 @@ class Settings(BaseSettings):
     NOTIFICATIONS_DBNAME: str = 'notifications'
     NOTIFICATIONS_SCHEMA: str = 'notifications'
     ANNOUNCEMENTS_SCHEMA: str = 'announcements'
-    version = "1.1.0"
+    version = '1.1.0'
     api_modules = API_MODULES
-    TEST_EMAIL_SENDER: str = ""
-    TEST_EMAIL_RECEIVER: str = ""
-    TEST_EMAIL_RECEIVER_2: str = ""
 
     def __init__(self):
         super().__init__()
-        self.SQLALCHEMY_DATABASE_URI = f"postgresql://{self.RDS_USER}:{self.RDS_PWD}@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}"
+        url = (
+            f'postgresql://{self.RDS_USER}:{self.RDS_PWD}'
+            f'@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}')
+        self.SQLALCHEMY_DATABASE_URI = (url)
         if self.postfix != '' and self.smtp_port:
             self.POSTFIX_URL = self.postfix
             self.POSTFIX_PORT = self.smtp_port
@@ -70,8 +82,17 @@ class Settings(BaseSettings):
         extra = Extra.allow
 
         @classmethod
-        def customise_sources(cls, init_settings, env_settings, file_secret_settings):
-            return load_vault_settings, env_settings, init_settings, file_secret_settings
+        def customise_sources(
+            cls,
+            init_settings,
+            env_settings,
+            file_secret_settings
+        ):
+            return (
+                env_settings,
+                load_vault_settings,
+                init_settings,
+                file_secret_settings)
 
 
 @lru_cache(1)

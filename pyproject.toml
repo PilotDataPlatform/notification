@@ -6,8 +6,7 @@ authors = ["Indoc Research"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-common = "0.0.14"
-logger = "0.1.0"
+pilot-platform-common = "^0.0.25"
 fastapi = "0.62.0"
 FastAPI-SQLAlchemy = "0.2.1"
 fastapi-utils = "0.2.1"
@@ -26,19 +25,17 @@ python-multipart = "0.0.5"
 requests = "2.24.0"
 uvicorn = "0.12.3"
 uvloop = "0.14.0"
+itsdangerous = "1.1.0"
+markupsafe = "1.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "6.0.2"
-pytest-env = "0.6.2"
-pytest-dependency = "0.5.1"
-coverage = "5.3"
 requests = "2.24.0"
+pytest-cov = "^3.0.0"
+pytest-env = "0.6.2"
+testcontainers = "3.4.2"
+sqlalchemy-utils = "0.38.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[[tool.poetry.source]]
-name = "pilot"
-url = "https://git.indocresearch.org/api/v4/groups/pilot/-/packages/pypi/simple"
-default = true

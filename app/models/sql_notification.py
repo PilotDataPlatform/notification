@@ -1,6 +1,24 @@
-from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Integer
+# Copyright (C) 2022 Indoc Research
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
+
 from app.config import ConfigClass
 
 Base = declarative_base()
@@ -16,12 +34,13 @@ class NotificationModel(Base):
     duration_unit = Column(String())
     created_date = Column(DateTime())
 
-    __table_args__ = (
-        {"schema": ConfigClass.NOTIFICATIONS_SCHEMA},
-    )
+    __table_args__ = ({'schema': ConfigClass.NOTIFICATIONS_SCHEMA},)
 
-    def __init__(self, type, message, maintenance_date, duration, duration_unit, created_date):
-        self.type = type
+    def __init__(
+        self, notification_type, message, maintenance_date, duration,
+        duration_unit, created_date
+    ):
+        self.type = notification_type
         self.message = message
         self.maintenance_date = maintenance_date
         self.duration = duration
@@ -33,12 +52,13 @@ class NotificationModel(Base):
             'id': self.id,
             'type': self.type,
             'message': self.message,
-            'created_date': self.created_date.strftime("%Y-%m-%dT%H:%M:%S"),
+            'created_date': self.created_date.strftime('%Y-%m-%dT%H:%M:%S'),
             'detail': {
-                'maintenance_date': self.maintenance_date.strftime("%Y-%m-%dT%H:%M:%S"),
+                'maintenance_date': self.maintenance_date.strftime(
+                    '%Y-%m-%dT%H:%M:%S'),
                 'duration': self.duration,
-                'duration_unit': self.duration_unit
-            }
+                'duration_unit': self.duration_unit,
+            },
         }
 
 
@@ -48,9 +68,7 @@ class UnsubscribedModel(Base):
     username = Column(String())
     notification_id = Column(Integer())
 
-    __table_args__ = (
-        {"schema": ConfigClass.NOTIFICATIONS_SCHEMA},
-    )
+    __table_args__ = ({'schema': ConfigClass.NOTIFICATIONS_SCHEMA},)
 
     def __init__(self, username, notification_id):
         self.username = username
@@ -60,5 +78,4 @@ class UnsubscribedModel(Base):
         return {
             'id': self.id,
             'username': self.username,
-            'notification_id': self.notification_id
-        }
+            'notification_id': self.notification_id}

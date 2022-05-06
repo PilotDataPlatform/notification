@@ -1,0 +1,76 @@
+# Copyright (C) 2022 Indoc Research
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification
+  namespace: utility
+  labels:
+    app: notification
+  annotations:
+    "sidecar.jaegertracing.io/inject": "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 33%
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+        - name: notification
+          image: registry-gitlab.indocresearch.org/platform/service_notification:<VERSION>
+          ports:
+            - containerPort: 5065
+          env:
+            - name: env
+              value: "dev"
+            - name: CONFIG_CENTER_ENABLED
+              value: "true"
+            - name: VAULT_URL
+              value: "https://vault.vault:8200/v1/vre/app/config"
+            - name: VAULT_CRT
+              value: "/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-secret
+                  key: token
+      nodeSelector:
+        namespace: utility
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification
+  namespace: utility
+  labels:
+    app: notification
+spec:
+  ports:
+    - name: notification
+      port: 5065
+      targetPort: 5065
+  selector:
+    app: notification
+  type: LoadBalancer
