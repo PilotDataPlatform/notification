@@ -41,6 +41,12 @@ jobs:
         run: |
           pip install -U pip
           poetry install --no-interaction --no-root
+      - name: Install pre-commit
+        run: |
+          source .venv/bin/activate
+          export PATH=$PATH:/root/.local/bin
+          pip3 install pre_commit
+          python3 -m pre_commit install
   linter:
     needs: build
     runs-on: ubuntu-20.04
@@ -54,12 +60,6 @@ jobs:
       with:
         path: .venv
         key: venv-${{ hashFiles('**/poetry.lock') }}
-    - name: Install pre-commit
-      run: |
-        source .venv/bin/activate
-        export PATH=$PATH:/root/.local/bin
-        pip3 install pre_commit
-        python3 -m pre_commit install
     - name: flake8
       run: |
         source .venv/bin/activate
