@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: venv-${{ hashFiles('**/poetry.lock') }}-1
+          key: venv-${{ hashFiles('**/poetry.lock') }}
       # In stall dependencies
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -51,7 +51,7 @@ jobs:
       id: cached-poetry-dependencies
       with:
         path: .venv
-        key: venv-${{ hashFiles('**/poetry.lock') }}-1
+        key: venv-${{ hashFiles('**/poetry.lock') }}
     - name: Install pre-commit
       run: |
           source .venv/bin/activate
@@ -77,7 +77,7 @@ jobs:
       id: cached-poetry-dependencies
       with:
         path: .venv
-        key: venv-${{ hashFiles('**/poetry.lock') }}-1
+        key: venv-${{ hashFiles('**/poetry.lock') }}
     - name: Run tests
       run: |
         source .venv/bin/activate
