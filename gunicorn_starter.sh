@@ -15,4 +15,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-gunicorn -c gunicorn_config.py "app.main:app" -k uvicorn.workers.UvicornWorker
+gunicorn -c gunicorn_config.py "run:app" -k uvicorn.workers.UvicornWorker
