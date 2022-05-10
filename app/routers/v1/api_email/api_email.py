@@ -87,7 +87,7 @@ class WriteEmails:
         api_response = POSTEmailResponse()
         text = data.message
         template = data.template
-        code, result = validate_email_content(
+        code, result, text = validate_email_content(
             text,
             template,
             data.template_kwargs)

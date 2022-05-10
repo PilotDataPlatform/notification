@@ -41,17 +41,19 @@ def validate_email_content(text, template, template_kwargs):
     if text and template:
         result = 'Please only set text or template, not both'
         code = EAPIResponseCode.bad_request
+        new_text = ''
     if not text and not template:
         result = 'Text or template is required'
         code = EAPIResponseCode.bad_request
+        new_text = ''
     if template:
         try:
             template = templates.get_template(template)
-            text = template.render(template_kwargs)
+            new_text = template.render(template_kwargs)
         except jinja2.exceptions.TemplateNotFound:
             result = 'Template not found'
             code = EAPIResponseCode.not_found
-    return code, result
+    return code, result, new_text
 
 
 def attach_data(file):
