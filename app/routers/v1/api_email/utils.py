@@ -38,14 +38,13 @@ def validate_email_content(text, template, template_kwargs):
     templates = Jinja2Templates(directory='emails')
     code = EAPIResponseCode.success
     result = ''
+    new_text = ''
     if text and template:
         result = 'Please only set text or template, not both'
         code = EAPIResponseCode.bad_request
-        new_text = ''
     if not text and not template:
         result = 'Text or template is required'
         code = EAPIResponseCode.bad_request
-        new_text = ''
     if template:
         try:
             template = templates.get_template(template)
