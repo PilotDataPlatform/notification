@@ -1,1 +1,1 @@
-namespace = "service_notification"
+namespace = 'service_notification'

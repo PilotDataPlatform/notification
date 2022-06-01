@@ -43,4 +43,3 @@ Manages emails and system maintenance notifications.
 
 ## Usage
 Swagger API documentation can be found locally at `http://localhost:5065/v1/api-doc`.
-

@@ -111,7 +111,7 @@ pipeline {
         ])
       }
     }
-**/    
+**/
   }
   post {
       failure {
@@ -120,4 +120,3 @@ pipeline {
   }
 
 }
-

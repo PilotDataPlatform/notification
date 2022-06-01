@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     def __init__(self):
         super().__init__()
         url = (
-            f'postgresql://{self.RDS_USER}:{self.RDS_PWD}'
+            f'postgresql+asyncpg://{self.RDS_USER}:{self.RDS_PWD}'
             f'@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}')
         self.SQLALCHEMY_DATABASE_URI = (url)
         if self.postfix != '' and self.smtp_port:

@@ -14,13 +14,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
+from datetime import datetime
 
 from fastapi import APIRouter
 from fastapi import Depends
-from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
+from sqlalchemy import Date
+from sqlalchemy import cast
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import select
 
+from app.dependencies.db import get_db_session
 from app.models.base_models import EAPIResponseCode
 from app.models.models_announcement import GETAnnouncement
 from app.models.models_announcement import GETAnnouncementResponse
@@ -39,8 +44,8 @@ class APIAnnouncement:
         response_model=GETAnnouncementResponse,
         summary='Query all announcements for project')
     async def get_announcements(
-        self,
-        params: GETAnnouncement = Depends(GETAnnouncement)
+            self, db: AsyncSession = Depends(get_db_session),
+            params: GETAnnouncement = Depends(GETAnnouncement),
     ):
         api_response = GETAnnouncementResponse()
         no_enddate = params.start_date and not params.end_date
@@ -63,26 +68,26 @@ class APIAnnouncement:
                 sort_param = getattr(AnnouncementModel, params.sorting).asc()
             else:
                 sort_param = getattr(AnnouncementModel, params.sorting).desc()
-            announcements = db.session.query(AnnouncementModel).filter_by(
+            query = select(AnnouncementModel).filter_by(
                 **query_data).order_by(sort_param)
         else:
             sort_param = getattr(AnnouncementModel, params.sorting).asc()
-            announcements = db.session.query(AnnouncementModel).filter_by(
+            query = select(AnnouncementModel).filter_by(
                 **query_data).order_by(sort_param)
 
         if params.start_date and params.end_date:
-            announcements = announcements.filter(
-                AnnouncementModel.date >= params.start_date,
-                AnnouncementModel.date <= params.end_date
+            query = query.filter(
+                cast(AnnouncementModel.date, Date) >= datetime.strptime(params.start_date, '%Y-%m-%d').date(),
+                cast(AnnouncementModel.date, Date) <= datetime.strptime(params.end_date, '%Y-%m-%d').date()
             )
-        paginate(params, api_response, announcements)
+        await paginate(params, api_response, query, db)
         return api_response.json_response()
 
     @router.post(
         '/',
         response_model=POSTAnnouncementResponse,
         summary='Create new announcement')
-    async def create_announcement(self, data: POSTAnnouncement):
+    async def create_announcement(self, data: POSTAnnouncement, db: AsyncSession = Depends(get_db_session)):
         api_response = POSTAnnouncementResponse()
 
         if len(data.content) > 250:
@@ -98,9 +103,9 @@ class APIAnnouncement:
         }
         announcement = AnnouncementModel(**model_data)
         try:
-            db.session.add(announcement)
-            db.session.commit()
-            db.session.refresh(announcement)
+            db.add(announcement)
+            await db.commit()
+            await db.refresh(announcement)
         except IntegrityError:
             api_response.set_error_msg(
                 'project_code and version already exist in db')

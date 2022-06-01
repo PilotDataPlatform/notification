@@ -17,13 +17,15 @@ from json import loads
 
 import pytest
 
+pytestmark = pytest.mark.asyncio
+
 notificationId = None
 
 
 class TestNotification():
 
     @pytest.mark.dependency(name='test_01')
-    def test_01_post_notification(self, test_client):
+    async def test_01_post_notification(self, test_client):
         payload = {
             'type': 'test_01',
             'message': 'Test message from post',
@@ -32,19 +34,21 @@ class TestNotification():
                 'duration': 1,
                 'duration_unit': 'h'},
         }
-        response = test_client.post('/v1/notification/', json=payload)
+        response = await test_client.post('/v1/notification/', json=payload)
         global notificationId
         notificationId = loads(response.text)['result']['id']
         assert response.status_code == 200
 
     @pytest.mark.dependency(depends=['test_01'])
-    def test_02_get_notification(self, test_client):
+    async def test_02_get_notification(self, test_client):
         params = {'id': notificationId}
-        response = test_client.get('/v1/notification/', params=params)
+        response = await test_client.get('/v1/notification/', query_string=params)
+        res = response.json()['result']
         assert response.status_code == 200
+        assert res['id'] == notificationId
 
     @pytest.mark.dependency(depends=['test_01'])
-    def test_03_put_notification(self, test_client):
+    async def test_03_put_notification(self, test_client):
         params = {'id': notificationId}
         payload = {
             'type': 'test_03',
@@ -54,38 +58,34 @@ class TestNotification():
                 'duration': 1,
                 'duration_unit': 'h'},
         }
-        response = test_client.put(
+        response = await test_client.put(
             '/v1/notification/',
-            params=params,
+            query_string=params,
             json=payload)
         assert response.status_code == 200
 
     @pytest.mark.dependency(depends=['test_01'])
-    def test_04_get_notifications(self, test_client):
-        response = test_client.get('/v1/notifications/')
+    async def test_04_get_notifications(self, test_client):
+        response = await test_client.get('/v1/notifications/')
+        res = response.json()['result'][0]
         assert response.status_code == 200
+        assert res['id'] == notificationId
 
-    @pytest.mark.dependency(depends=['test_01'])
-    def test_05_delete_notification(self, test_client):
-        params = {'id': notificationId}
-        response = test_client.delete('/v1/notification/', params=params)
-        assert response.status_code == 200
-
-    @pytest.mark.dependency(name='test_06')
-    def test_06_unsubscribe(self, test_client):
+    @pytest.mark.dependency(name='test_01')
+    async def test_06_unsubscribe(self, test_client):
         payload = {
             'username': 'erik',
-            'notification_id': 1,
+            'notification_id': notificationId,
         }
-        response = test_client.post('/v1/unsubscribe/', json=payload)
+        response = await test_client.post('/v1/unsubscribe/', json=payload)
         assert response.status_code == 200
 
-    def test_07_get_notification_not_exist(self, test_client):
+    async def test_07_get_notification_not_exist(self, test_client):
         params = {'id': '99999'}
-        response = test_client.get('/v1/notification/', params=params)
+        response = await test_client.get('/v1/notification/', query_string=params)
         assert response.status_code == 400
 
-    def test_08_post_notification_message_too_long(self, test_client):
+    async def test_08_post_notification_message_too_long(self, test_client):
         payload = {
             'type': 'test_08',
             'message': (
@@ -100,10 +100,10 @@ class TestNotification():
                 'duration': 1,
                 'duration_unit': 'h'},
         }
-        response = test_client.post('/v1/notification/', json=payload)
+        response = await test_client.post('/v1/notification/', json=payload)
         assert response.status_code == 400
 
-    def test_09_post_notification_duration_not_positive(self, test_client):
+    async def test_09_post_notification_duration_not_positive(self, test_client):
         payload = {
             'type': 'test_09',
             'message': 'Test message from post with an invalid duration',
@@ -112,11 +112,11 @@ class TestNotification():
                 'duration': -1,
                 'duration_unit': 'h'},
         }
-        response = test_client.post('/v1/notification/', json=payload)
+        response = await test_client.post('/v1/notification/', json=payload)
         assert response.status_code == 400
 
     @pytest.mark.dependency(depends=['test_01'])
-    def test_10_put_notification_message_too_long(self, test_client):
+    async def test_10_put_notification_message_too_long(self, test_client):
         params = {'id': notificationId}
         payload = {
             'type': 'test_10',
@@ -132,14 +132,14 @@ class TestNotification():
                 'duration': 1,
                 'duration_unit': 'h'},
         }
-        response = test_client.put(
+        response = await test_client.put(
             '/v1/notification/',
-            params=params,
+            query_string=params,
             json=payload)
         assert response.status_code == 400
 
     @pytest.mark.dependency(depends=['test_01'])
-    def test_11_put_notification_duration_not_positive(self, test_client):
+    async def test_11_put_notification_duration_not_positive(self, test_client):
         params = {'id': notificationId}
         payload = {
             'type': 'test_11',
@@ -149,22 +149,30 @@ class TestNotification():
                 'duration': -1,
                 'duration_unit': 'h'},
         }
-        response = test_client.put(
+        response = await test_client.put(
             '/v1/notification/',
-            params=params,
+            query_string=params,
             json=payload)
         assert response.status_code == 400
 
-    def test_12_get_notifications_no_username(self, test_client):
+    async def test_12_get_notifications_no_username(self, test_client):
         params = {'all': False}
-        response = test_client.get('/v1/notifications/', params=params)
+        response = await test_client.get('/v1/notifications/', query_string=params)
         assert response.status_code == 400
 
     @pytest.mark.dependency(depends=['test_06'])
-    def test_13_get_notifications_with_username(self, test_client):
+    async def test_13_get_notifications_with_username(self, test_client):
         params = {
-            'all': False,
+            'all': True,
             'username': 'erik'
         }
-        response = test_client.get('/v1/notifications/', params=params)
+        response = await test_client.get('/v1/notifications/', query_string=params)
+        res = response.json()['result'][0]
+        assert response.status_code == 200
+        assert res['id'] == notificationId
+
+    @pytest.mark.dependency(depends=['test_01'])
+    async def test_05_delete_notification(self, test_client):
+        params = {'id': notificationId}
+        response = await test_client.delete('/v1/notification/', query_string=params)
         assert response.status_code == 200

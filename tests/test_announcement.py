@@ -13,28 +13,34 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import pytest
+
+pytestmark = pytest.mark.asyncio
+
 
 class TestAnnouncement:
 
-    def test_01_post_announcement(self, test_client):
+    async def test_01_post_announcement(self, test_client):
         payload = {
             'project_code': 'test_01',
             'content': 'Content for test announcement',
             'publisher': 'erik'
         }
-        response = test_client.post('/v1/announcements/', json=payload)
+        response = await test_client.post('/v1/announcements/', json=payload)
         assert response.status_code == 200
 
-    def test_02_get_announcements(self, test_client):
+    async def test_02_get_announcements(self, test_client):
         params = {
             'project_code': 'test_01',
             'order': 'asc',
-            'version': '1'
         }
-        response = test_client.get('/v1/announcements/', params=params)
+        response = await test_client.get('/v1/announcements/', query_string=params)
+        res = response.json()['result'][0]
         assert response.status_code == 200
+        assert res['id'] == 1
+        assert res['project_code'] == 'test_01'
 
-    def test_03_post_announcements_message_too_long(self, test_client):
+    async def test_03_post_announcements_message_too_long(self, test_client):
         payload = {
             'project_code': 'test_03',
             'content': (
@@ -46,30 +52,36 @@ class TestAnnouncement:
                 'occaecati rerum.'),
             'publisher': 'erik'
         }
-        response = test_client.post('/v1/announcements/', json=payload)
+        response = await test_client.post('/v1/announcements/', json=payload)
         assert response.status_code == 400
 
-    def test_04_get_announcements_no_end_date(self, test_client):
+    async def test_04_get_announcements_no_end_date(self, test_client):
         params = {
             'project_code': 'test_01',
             'start_date': '2022-01-01'
         }
-        response = test_client.get('/v1/announcements/', params=params)
+        response = await test_client.get('/v1/announcements/', query_string=params)
         assert response.status_code == 400
 
-    def test_05_get_announcements_desc(self, test_client):
+    async def test_05_get_announcements_desc(self, test_client):
         params = {
             'project_code': 'test_01',
             'order': 'desc'
         }
-        response = test_client.get('/v1/announcements/', params=params)
+        response = await test_client.get('/v1/announcements/', query_string=params)
+        res = response.json()['result'][0]
         assert response.status_code == 200
+        assert res['id'] == 1
+        assert res['project_code'] == 'test_01'
 
-    def test_06_get_announcements_with_dates(self, test_client):
+    async def test_06_get_announcements_with_dates(self, test_client):
         params = {
             'project_code': 'test_01',
             'start_date': '2022-01-01',
-            'end_date': '2022-12-31'
+            'end_date': '2030-12-31'
         }
-        response = test_client.get('/v1/announcements/', params=params)
+        response = await test_client.get('/v1/announcements/', query_string=params)
+        res = response.json()['result'][0]
         assert response.status_code == 200
+        assert res['id'] == 1
+        assert res['project_code'] == 'test_01'

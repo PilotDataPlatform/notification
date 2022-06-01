@@ -83,7 +83,7 @@ def send_emails(
 @cbv.cbv(router)
 class WriteEmails:
     @router.post('/', response_model=POSTEmailResponse, summary='Send emails')
-    async def post(self, data: POSTEmail):
+    def post(self, data: POSTEmail):
         api_response = POSTEmailResponse()
         text = data.message
         template = data.template
