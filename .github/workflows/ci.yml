@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-      
+
       # Setup python version
       - name: Setup python
         uses: actions/setup-python@v2
@@ -87,4 +87,3 @@ jobs:
       with:
         file: ./coverage.xml
         fail_ci_if_error: false
-        

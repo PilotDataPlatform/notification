@@ -14,16 +14,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import select
 
 from app.models.base_models import APIResponse
-from app.models.sql_announcement import Base
 
 
-def paginate(params: BaseModel, api_response: APIResponse, items: Base):
-    total = items.count()
-    items = items.limit(params.page_size).offset(
+async def paginate(params: BaseModel, api_response: APIResponse, query: select, db: AsyncSession):
+    query = query.limit(params.page_size).offset(
         params.page * params.page_size)
-    items = items.all()
+    items = (await db.execute(query)).scalars().all()
+    total = len(items)
     results = []
     for item in items:
         results.append(item.to_dict())

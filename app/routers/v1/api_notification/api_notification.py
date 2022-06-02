@@ -19,9 +19,11 @@ from datetime import timezone
 from common import LoggerFactory
 from fastapi import APIRouter
 from fastapi import Depends
-from fastapi_sqlalchemy import db
 from fastapi_utils.cbv import cbv
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import select
 
+from app.dependencies.db import get_db_session
 from app.models.base_models import EAPIResponseCode
 from app.models.models_notification import DELETENotification
 from app.models.models_notification import DELETENotificationResponse
@@ -52,16 +54,16 @@ class APINotification:
         response_model=GETNotificationResponse,
         summary='Query one maintenance notification by ID')
     async def get_notification(
-        self, params: GETNotification = Depends(GETNotification)
+            self, db: AsyncSession = Depends(get_db_session), params: GETNotification = Depends(GETNotification)
     ):
         try:
             api_response = GETNotificationResponse()
-            notification = db.session.query(NotificationModel).filter_by(
-                id=params.id)
+            query = select(NotificationModel).filter_by(id=params.id)
+            notification = (await db.execute(query)).scalars().first()
             api_response.page = 0
             api_response.num_of_pages = 1
             api_response.total = 1
-            api_response.result = notification.first().to_dict()
+            api_response.result = notification.to_dict()
         except Exception as e:
             readable_error = f'Could not get notification with id={params.id}'
             _logger.exception(f'{readable_error}\n{e}')
@@ -73,7 +75,7 @@ class APINotification:
         '/',
         response_model=POSTNotificationResponse,
         summary='Create new maintenance notification')
-    async def create_notification(self, data: POSTNotification):
+    async def create_notification(self, data: POSTNotification, db: AsyncSession = Depends(get_db_session)):
         api_response = POSTNotificationResponse()
         if len(data.message) > 250:
             api_response.set_error_msg('Message too long')
@@ -86,16 +88,16 @@ class APINotification:
         model_data = {
             'notification_type': data.type,
             'message': data.message,
-            'maintenance_date': data.detail.maintenance_date,
+            'maintenance_date': data.detail.maintenance_date.replace(tzinfo=None),
             'duration': data.detail.duration,
             'duration_unit': data.detail.duration_unit,
-            'created_date': str(datetime.now(timezone.utc)),
+            'created_date': datetime.now(timezone.utc).replace(tzinfo=None),
         }
         notification = NotificationModel(**model_data)
         try:
-            db.session.add(notification)
-            db.session.commit()
-            db.session.refresh(notification)
+            db.add(notification)
+            await db.commit()
+            await db.refresh(notification)
             api_response.result = notification.to_dict()
         except Exception as e:
             readable_error = 'Failed to write to database'
@@ -109,9 +111,10 @@ class APINotification:
         response_model=PUTNotificationResponse,
         summary='Modify one maintenance notification by ID')
     async def modify_notification(
-        self,
-        data: PUTNotification,
-        params: PUTNotificationParams = Depends(PUTNotificationParams)
+            self,
+            data: PUTNotification,
+            db: AsyncSession = Depends(get_db_session),
+            params: PUTNotificationParams = Depends(PUTNotificationParams)
     ):
         api_response = PUTNotificationResponse()
         if len(data.message) > 250:
@@ -124,16 +127,16 @@ class APINotification:
             return api_response.json_response()
         try:
             notification_id = params.id
-            notification = db.session.query(NotificationModel).filter_by(
-                id=notification_id).first()
+            query = select(NotificationModel).filter_by(id=notification_id)
+            notification = (await db.execute(query)).scalars().first()
             notification.type = data.type
             notification.message = data.message
-            notification.created_date = str(datetime.now(timezone.utc))
-            notification.maintenance_date = data.detail.maintenance_date
+            notification.created_date = datetime.now(timezone.utc).replace(tzinfo=None)
+            notification.maintenance_date = data.detail.maintenance_date.replace(tzinfo=None)
             notification.duration = data.detail.duration
             notification.duration_unit = data.detail.duration_unit
-            db.session.commit()
-            db.session.refresh(notification)
+            await db.commit()
+            await db.refresh(notification)
             api_response.result = notification.to_dict()
         except Exception as e:
             readable_error = 'Failed to write to database'
@@ -147,14 +150,15 @@ class APINotification:
         response_model=DELETENotificationResponse,
         summary='Delete one maintenance notification by ID')
     async def delete_notification(
-        self, params: DELETENotification = Depends(DELETENotification)
+            self, params: DELETENotification = Depends(DELETENotification),
+            db: AsyncSession = Depends(get_db_session)
     ):
         api_response = DELETENotificationResponse()
         try:
-            notification = db.session.query(NotificationModel).filter_by(
-                id=params.id)
-            db.session.delete(notification.first())
-            db.session.commit()
+            query = select(NotificationModel).filter_by(id=params.id)
+            notification = (await db.execute(query)).scalars().first()
+            await db.delete(notification)
+            await db.commit()
         except Exception as e:
             readable_error = 'Failed to delete from database'
             _logger.exception(f'{readable_error}\n{e}')
@@ -170,11 +174,11 @@ class APINotificationBulk:
         response_model=GETNotificationResponse,
         summary='Query many maintenance notifications')
     async def get_all_notifications(
-        self, params: GETNotifications = Depends(GETNotifications)
+            self, params: GETNotifications = Depends(GETNotifications),
+            db: AsyncSession = Depends(get_db_session)
     ):
         api_response = GETNotificationResponse()
-        notifications = db.session.query(
-            NotificationModel).order_by(NotificationModel.created_date.desc())
+        query = select(NotificationModel).order_by(NotificationModel.created_date.desc())
         if not params.all:
             if not params.username:
                 api_response.error_msg = (
@@ -182,14 +186,15 @@ class APINotificationBulk:
                     'if all is false')
                 api_response.code = EAPIResponseCode.bad_request
                 return api_response.json_response()
-            unsubs = db.session.query(UnsubscribedModel).filter_by(
-                username=params.username).all()
+            unsubscribe_query = select(UnsubscribedModel).filter_by(
+                username=params.username)
+            unsubs = (await db.execute(unsubscribe_query)).scalars().all()
             unsubNotificationIds = []
             for unsub in unsubs:
                 unsubNotificationIds.append(unsub.notification_id)
-            notifications = notifications.filter(
+            query = query.filter(
                 NotificationModel.id.not_in(unsubNotificationIds))
-        paginate(params, api_response, notifications)
+        await paginate(params, api_response, query, db)
         return api_response.json_response()
 
 
@@ -200,16 +205,16 @@ class APINotificationUnsub:
         response_model=POSTUnsubResponse,
         summary='Unsubscribe one user from one maintenance notification'
     )
-    async def unsub_notification(self, data: POSTUnsub):
+    async def unsub_notification(self, data: POSTUnsub, db: AsyncSession = Depends(get_db_session)):
         api_response = POSTUnsubResponse()
         model_data = {
             'username': data.username,
             'notification_id': data.notification_id}
         unsub = UnsubscribedModel(**model_data)
         try:
-            db.session.add(unsub)
-            db.session.commit()
-            db.session.refresh(unsub)
+            db.add(unsub)
+            await db.commit()
+            await db.refresh(unsub)
             api_response.result = unsub.to_dict()
         except Exception as e:
             readable_error = 'Failed to write to database'

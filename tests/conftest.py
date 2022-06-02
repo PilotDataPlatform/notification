@@ -1,50 +1,86 @@
+import asyncio
+import socket
+from unittest.mock import MagicMock
+
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.schema import CreateSchema
+import pytest_asyncio
+from async_asgi_testclient import TestClient
+from fastapi.testclient import TestClient as TestClientEmail
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.schema import CreateTable
-from sqlalchemy_utils import create_database
-from sqlalchemy_utils import database_exists
 from testcontainers.postgres import PostgresContainer
 
 from app.config import ConfigClass
 from app.main import create_app
 from app.models.sql_announcement import AnnouncementModel
 from app.models.sql_notification import NotificationModel
+from app.models.sql_notification import UnsubscribedModel
 
 
-@pytest.fixture(scope='session', autouse=True)
-def db():
+class ProcessMocked(object):
+    def __init__(self, target, args):
+        self.target = target
+        self.args = args
+
+    def start(self):
+        self.target(*self.args)
+
+    def join(self):
+        pass
+
+
+@pytest_asyncio.fixture(scope='session', autouse=True)
+async def db():
     with PostgresContainer('postgres:14.1') as postgres:
-        postgres_uri = postgres.get_connection_url()
-        if not database_exists(postgres_uri):
-            create_database(postgres_uri)
-        engine = create_engine(postgres_uri)
-
-        from app.models.sql_notification import Base
-        CreateTable(NotificationModel.__table__).compile(
-            dialect=postgresql.dialect())
-        notification_schema_exist = engine.dialect.has_schema(
-            engine, ConfigClass.NOTIFICATIONS_SCHEMA)
-        if not notification_schema_exist:
-            engine.execute(CreateSchema(ConfigClass.NOTIFICATIONS_SCHEMA))
-        Base.metadata.create_all(bind=engine)
-
-        from app.models.sql_announcement import Base
-        CreateTable(AnnouncementModel.__table__).compile(
-            dialect=postgresql.dialect())
-        announcement_schema_exist = engine.dialect.has_schema(
-            engine, ConfigClass.ANNOUNCEMENTS_SCHEMA)
-        if not announcement_schema_exist:
-            engine.execute(CreateSchema(ConfigClass.ANNOUNCEMENTS_SCHEMA))
-        Base.metadata.create_all(bind=engine)
+        postgres_uri = postgres.get_connection_url().replace('+psycopg2', '+asyncpg')
+        engine = create_async_engine(postgres_uri)
+        async with engine.begin() as connection:
+            await connection.execute(text(f'CREATE SCHEMA IF NOT EXISTS {ConfigClass.NOTIFICATIONS_SCHEMA};'))
+            await connection.execute(text(f'CREATE SCHEMA IF NOT EXISTS {ConfigClass.ANNOUNCEMENTS_SCHEMA};'))
+            await connection.execute(CreateTable(NotificationModel.__table__))
+            await connection.execute(CreateTable(AnnouncementModel.__table__))
+            await connection.execute(CreateTable(UnsubscribedModel.__table__))
         yield postgres
+        await engine.dispose()
+
+
+@pytest.fixture(scope='session')
+def event_loop(request):
+    """Create an instance of the default event loop for each test case."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+    asyncio.set_event_loop_policy(None)
+
+
+@pytest_asyncio.fixture
+async def test_client(db):
+    ConfigClass.SQLALCHEMY_DATABASE_URI = db.get_connection_url().replace('+psycopg2', '+asyncpg')
+    app = create_app()
+    async with TestClient(app) as client:
+        yield client
 
 
 @pytest.fixture
-def test_client(db):
-    ConfigClass.SQLALCHEMY_DATABASE_URI = db.get_connection_url()
+def test_client_email():
     app = create_app()
-    client = TestClient(app)
+    client = TestClientEmail(app)
     return client
+
+
+@pytest.fixture(scope='function')
+def smtp_mocker(mocker) -> MagicMock:
+    smtp_mocker = mocker.patch('smtplib.SMTP', autospec=True)
+    return smtp_mocker
+
+
+@pytest.fixture(scope='function')
+def smtp_mocker_connection_error(smtp_mocker: MagicMock) -> MagicMock:
+    smtp_mocker.side_effect = socket.gaierror
+    return smtp_mocker
+
+
+@pytest.fixture(scope='function')
+def mock_multiprocessing_process(mocker):
+    mocker.patch('app.routers.v1.api_email.api_email.Process', new=ProcessMocked)
