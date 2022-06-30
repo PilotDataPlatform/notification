@@ -77,8 +77,8 @@ class TestAnnouncement:
     async def test_06_get_announcements_with_dates(self, test_client):
         params = {
             'project_code': 'test_01',
-            'start_date': '2022-01-01',
-            'end_date': '2030-12-31'
+            'start_date': '2022-01-01 01:01:01',
+            'end_date': '2030-12-31 02:02:02'
         }
         response = await test_client.get('/v1/announcements/', query_string=params)
         res = response.json()['result'][0]
