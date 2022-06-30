@@ -77,8 +77,8 @@ class APIAnnouncement:
 
         if params.start_date and params.end_date:
             query = query.filter(
-                cast(AnnouncementModel.date, Date) >= datetime.strptime(params.start_date, '%Y-%m-%d').date(),
-                cast(AnnouncementModel.date, Date) <= datetime.strptime(params.end_date, '%Y-%m-%d').date()
+                cast(AnnouncementModel.date, Date) >= datetime.strptime(params.start_date, '%Y-%m-%d %H:%M:%S').date(),
+                cast(AnnouncementModel.date, Date) <= datetime.strptime(params.end_date, '%Y-%m-%d %H:%M:%S').date()
             )
         await paginate(params, api_response, query, db)
         return api_response.json_response()
