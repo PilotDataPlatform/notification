@@ -52,14 +52,14 @@ class Settings(BaseSettings):
     smtp_user: str = ''
     smtp_pass: str = ''
     smtp_port: str = ''
-    POSTFIX_URL: str
-    POSTFIX_PORT: str
+    POSTFIX_URL: str = 'mailhog'
+    POSTFIX_PORT: str = '1025'
     ALLOWED_EXTENSIONS: Set[str] = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
     IMAGE_EXTENSIONS: Set[str] = {'png', 'jpg', 'jpeg', 'gif'}
-    RDS_HOST: str
-    RDS_PORT: str
-    RDS_USER: str
-    RDS_PWD: str
+    RDS_HOST: str = 'db'
+    RDS_PORT: str = '5432'
+    RDS_USER: str = 'postgres'
+    RDS_PWD: str = 'postgres'
     NOTIFICATIONS_DBNAME: str = 'notifications'
     NOTIFICATIONS_SCHEMA: str = 'notifications'
     ANNOUNCEMENTS_SCHEMA: str = 'announcements'
