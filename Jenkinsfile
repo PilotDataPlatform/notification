@@ -27,7 +27,7 @@ pipeline {
                 customImage.push()
             }
             docker.withRegistry('https://ghcr.io', registryCredential) {
-                customImage = docker.build('$imagename:project-$commit', '--target project-image .')
+                customImage = docker.build('$imagename:notification-$commit', '--target notification-image .')
                 customImage.push()
             }
         }
@@ -38,7 +38,7 @@ pipeline {
       when {branch "develop"}
       steps {
             sh 'docker rmi $imagename:alembic-$commit'
-            sh 'docker rmi $imagename:project-$commit'
+            sh 'docker rmi $imagename:notification-$commit'
       }
     }
 
