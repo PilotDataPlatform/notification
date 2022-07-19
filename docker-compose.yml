@@ -18,21 +18,14 @@ services:
   web:
     build:
       context: .
-      target: production-environment
+      target: notification-image
     ports:
-      - "5065:8000"
-    environment:
-      port: 8000
-      SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@db:5432/notifications
+      - "8000:5065"
     volumes:
     - .:/usr/src/app
     depends_on:
       - mailhog
       - db
-    command:
-      sh -c "
-        uvicorn run:app --reload --host 0.0.0.0
-      "
 
   mailhog:
     image: mailhog/mailhog
@@ -54,7 +47,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
   pgadmin:
     image: 'dpage/pgadmin4'
     ports:
@@ -69,18 +62,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-  
+
   alembic:
     build:
       context: .
       target: alembic-image
-    environment:
-      - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI:-postgresql://postgres:postgres@notification_db_1:5432/notifications}
     depends_on:
       db:
         condition: service_healthy
-
-networks:
-  default:
-    external:
-      name: pilot-network
