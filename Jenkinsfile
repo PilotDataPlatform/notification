@@ -18,37 +18,16 @@ pipeline {
         }
     }
 
-    // stage('DEV: Run unit tests') {
-    //     when { branch 'develop' }
-    //     steps {
-    //         withCredentials([
-    //             usernamePassword(credentialsId: 'readonly', usernameVariable: 'PIP_USERNAME', passwordVariable: 'PIP_PASSWORD'),
-    //             string(credentialsId:'VAULT_TOKEN', variable: 'VAULT_TOKEN'),
-    //             string(credentialsId:'VAULT_URL', variable: 'VAULT_URL'),
-    //             file(credentialsId:'VAULT_CRT', variable: 'VAULT_CRT')
-    //         ]) {
-    //             sh """
-    //             docker build --build-arg PIP_USERNAME=${PIP_USERNAME} --build-arg PIP_PASSWORD=${PIP_PASSWORD} -t web .
-    //             docker-compose -f docker-compose.yml down -v
-    //             docker-compose up -d
-    //             docker-compose exec -T web /bin/bash
-    //             pip install --user poetry==1.1.12
-    //             ${HOME}/.local/bin/poetry config virtualenvs.in-project true
-    //             ${HOME}/.local/bin/poetry config http-basic.pilot ${PIP_USERNAME} ${PIP_PASSWORD}
-    //             ${HOME}/.local/bin/poetry install --no-root --no-interaction
-    //             ${HOME}/.local/bin/poetry run pytest --verbose -c tests/pytest.ini
-    //             docker-compose -f docker-compose.yml down -v
-    //             """
-    //         }
-    //     }
-    // }
-
     stage('DEV Build and push image') {
       when {branch "develop"}
       steps {
         script {
             docker.withRegistry('https://ghcr.io', registryCredential) {
-                customImage = docker.build("$imagename:$commit", ".")
+                customImage = docker.build('$imagename:alembic-$commit', '--target alembic-image .')
+                customImage.push()
+            }
+            docker.withRegistry('https://ghcr.io', registryCredential) {
+                customImage = docker.build('$imagename:project-$commit', '--target project-image .')
                 customImage.push()
             }
         }
@@ -57,8 +36,9 @@ pipeline {
 
     stage('DEV Remove image') {
       when {branch "develop"}
-      steps{
-        sh "docker rmi $imagename:$commit"
+      steps {
+            sh 'docker rmi $imagename:alembic-$commit'
+            sh 'docker rmi $imagename:project-$commit'
       }
     }
 
