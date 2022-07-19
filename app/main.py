@@ -70,4 +70,5 @@ def instrument_app(app) -> None:
     FastAPIInstrumentor.instrument_app(app)
     RequestsInstrumentor().instrument()
 
+
 app = create_app()

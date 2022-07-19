@@ -72,7 +72,8 @@ class Settings(BaseSettings):
             f'postgresql+asyncpg://{self.RDS_USER}:{self.RDS_PWD}'
             f'@{self.RDS_HOST}/{self.NOTIFICATIONS_DBNAME}')
         self.SQLALCHEMY_DATABASE_URI = (url)
-        self.ALEMBIC_DATABASE_URI = f'postgresql://{self.RDS_USER}:{self.RDS_PWD}@{self.RDS_HOST}:{self.RDS_PORT}/{self.NOTIFICATIONS_DBNAME}'
+        self.ALEMBIC_DATABASE_URI = (
+            f'postgresql://{self.RDS_USER}:{self.RDS_PWD}@{self.RDS_HOST}:{self.RDS_PORT}/{self.NOTIFICATIONS_DBNAME}')
         if self.postfix != '' and self.smtp_port:
             self.POSTFIX_URL = self.postfix
             self.POSTFIX_PORT = self.smtp_port
