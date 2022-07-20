@@ -14,13 +14,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from fastapi import FastAPI
+from fastapi_health import health
 
 from .routers.v1.api_announcement import api_announcement
 from .routers.v1.api_email import api_email
 from .routers.v1.api_notification import api_notification
+from .routers.v1.health.api_health import opsdb_check
 
 
 def api_registry(app: FastAPI):
+    app.add_api_route(
+        '/v1/health/',
+        health([opsdb_check], success_status=204),
+        tags=['Health'])
     app.include_router(
         api_announcement.router,
         prefix='/v1/announcements',

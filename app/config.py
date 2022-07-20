@@ -1,7 +1,6 @@
 from functools import lru_cache
 from typing import Any
 from typing import Dict
-from typing import List
 from typing import Optional
 from typing import Set
 
@@ -41,13 +40,11 @@ def load_vault_settings(settings: BaseSettings) -> Dict[str, Any]:
 class Settings(BaseSettings):
     """Store service configuration settings."""
 
-    APP_NAME: str = 'service_notification'
+    APP_NAME: str = 'notification_service'
     port: int = 5065
     host: str = '0.0.0.0'
-    namespace: str = ''
     env: str = 'test'
     OPEN_TELEMETRY_ENABLED: bool = False
-    API_MODULES: List = ['service_email']
     postfix: str = ''
     smtp_user: str = ''
     smtp_pass: str = ''
@@ -64,7 +61,6 @@ class Settings(BaseSettings):
     NOTIFICATIONS_SCHEMA: str = 'notifications'
     ANNOUNCEMENTS_SCHEMA: str = 'announcements'
     version = '1.1.0'
-    api_modules = API_MODULES
 
     def __init__(self):
         super().__init__()
