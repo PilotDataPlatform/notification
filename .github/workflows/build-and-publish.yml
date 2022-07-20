@@ -37,7 +37,7 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             type=sha,enable=true,prefix="alembic-",suffix=,format=short
-          target: |
+          bake-target: |
             alembic-image
       - name: Image digest
         run: echo ${{ steps.meta.outputs.tags }}
@@ -76,7 +76,7 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             type=sha,enable=true,prefix="notification-",suffix=,format=short
-          target: |
+          bake-target: |
             notification-image
       - name: Image digest
         run: echo ${{ steps.meta.outputs.tags }}
