@@ -13,14 +13,25 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM python:3.7-buster
+FROM python:3.7-buster AS production-environment
 
 WORKDIR /usr/src/app
-COPY . .
+COPY poetry.lock pyproject.toml ./
 
 RUN pip install --no-cache-dir poetry==1.1.12
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev --no-root --no-interaction
 
-RUN chmod +x gunicorn_starter.sh
-CMD ["./gunicorn_starter.sh"]
+FROM production-environment AS notification-image
+COPY app ./app
+ENTRYPOINT ["python3", "-m", "app"]
+
+FROM production-environment AS development-environment
+RUN poetry install --no-root --no-interaction
+
+FROM development-environment AS alembic-image
+COPY app ./app
+COPY migrations ./migrations
+COPY alembic.ini ./
+ENTRYPOINT ["python3", "-m", "alembic"]
+CMD ["upgrade", "head"]

@@ -18,32 +18,14 @@ services:
   web:
     build:
       context: .
+      target: notification-image
     ports:
-      - "5065:8000"
-    environment:
-      port: 8000
-      POSTFIX_URL: mailhog
-      POSTFIX_PORT: 1025
-      RDS_USER: postgres
-      RDS_PWD: postgres
-      RDS_HOST: db
-      RDS_PORT: 5432
-      NOTIFICATIONS_SCHEMA: notifications
-      ANNOUNCEMENTS_SCHEMA: announcements
-      SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@db:5432/notifications
+      - "8000:5065"
     volumes:
     - .:/usr/src/app
     depends_on:
       - mailhog
       - db
-    command:
-      sh -c "
-        pip install alembic
-
-        alembic upgrade head
-
-        uvicorn run:app --reload --host 0.0.0.0
-      "
 
   mailhog:
     image: mailhog/mailhog
@@ -60,6 +42,12 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - ./migrations/scripts/create_notifications_db.sql:/docker-entrypoint-initdb.d/01.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready --username $$POSTGRES_USER" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   pgadmin:
     image: 'dpage/pgadmin4'
     ports:
@@ -72,9 +60,13 @@ services:
     volumes:
       - ./local_config/pgadmin/:/var/lib/pgadmin/
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
-networks:
-  default:
-    external:
-      name: pilot-network
+  alembic:
+    build:
+      context: .
+      target: alembic-image
+    depends_on:
+      db:
+        condition: service_healthy
