@@ -7,8 +7,9 @@ authors = ["Indoc Research"]
 [tool.poetry.dependencies]
 python = "^3.7"
 pilot-platform-common = "^0.0.25"
-fastapi = "0.62.0"
+fastapi = "0.63.0"
 fastapi-utils = "0.2.1"
+fastapi-health = "0.4.0"
 httptools = "0.1.1"
 Jinja2 = "2.11.2"
 opentelemetry-exporter-jaeger = "1.6.2"
