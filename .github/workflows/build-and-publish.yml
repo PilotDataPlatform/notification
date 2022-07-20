@@ -37,8 +37,6 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             type=sha,enable=true,prefix="alembic-",suffix=,format=short
-          bake-target: |
-            alembic-image
       - name: Image digest
         run: echo ${{ steps.meta.outputs.tags }}
       - name: Build image and push to GitHub Container Registry
@@ -50,6 +48,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           # build on feature branches, push only on main branch
           push: ${{ github.event_name != 'pull_request' }}
+          target: alembic-image
   build-and-push-docker-image-notification:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build Docker image and push to repositories
@@ -76,8 +75,6 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             type=sha,enable=true,prefix="notification-",suffix=,format=short
-          bake-target: |
-            notification-image
       - name: Image digest
         run: echo ${{ steps.meta.outputs.tags }}
       - name: Build image and push to GitHub Container Registry
@@ -89,3 +86,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           # build on feature branches, push only on main branch
           push: ${{ github.event_name != 'pull_request' }}
+          target: notification-image
