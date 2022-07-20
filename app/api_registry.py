@@ -25,8 +25,7 @@ from .routers.v1.health.api_health import opsdb_check
 def api_registry(app: FastAPI):
     app.add_api_route(
         '/v1/health/',
-        health([opsdb_check],
-        success_status=204),
+        health([opsdb_check], success_status=204),
         tags=['Health'])
     app.include_router(
         api_announcement.router,
