@@ -1,10 +1,11 @@
 from common import LoggerFactory
-from app.models.sql_notification import NotificationModel
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.dependencies.db import get_db_session
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
+
+from app.dependencies.db import get_db_session
 from app.models.sql_announcement import AnnouncementModel
+from app.models.sql_notification import NotificationModel
 
 _logger = LoggerFactory('api_health').get_logger()
 
