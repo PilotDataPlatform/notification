@@ -24,6 +24,7 @@ RUN poetry install --no-dev --no-root --no-interaction
 
 FROM production-environment AS notification-image
 COPY app ./app
+COPY emails ./emails
 ENTRYPOINT ["python3", "-m", "app"]
 
 FROM production-environment AS development-environment

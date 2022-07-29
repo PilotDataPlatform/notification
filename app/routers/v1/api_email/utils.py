@@ -50,7 +50,7 @@ def validate_email_content(text, template, template_kwargs):
             template = templates.get_template(template)
             new_text = template.render(template_kwargs)
         except jinja2.exceptions.TemplateNotFound:
-            result = 'Template not found'
+            result = f'Template not found: {template}'
             code = EAPIResponseCode.not_found
     return code, result, new_text
 
